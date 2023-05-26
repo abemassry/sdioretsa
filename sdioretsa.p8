@@ -16,6 +16,25 @@ function _init()
 	thrust = 0 -- the ship's thrust
 end
 
+function a1(x,y)
+	local rx = 0
+	local ry = 0
+	rx, ry = rotate(x, y-5, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-1, y-5, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-2, y-5, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-3, y-6, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-4, y-6, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-5, y-6, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-4, y-6, x, y, a)
+	pset(rx, ry, 6)
+end
+
 
 function rotate(x,y,cx,cy,angle)
 	-- rotate everything when the ship turns
@@ -69,8 +88,8 @@ function add_new_asteroid()
 		end,
 
 		draw=function(self)
-			spr(self.sprite, self.rx,self.ry, 2, 2)
-		
+			--spr(self.sprite, self.rx,self.ry, 2, 2)
+		  a1(self.rx, self.ry)
 		end
 	})
 
