@@ -50,6 +50,7 @@ function add_bullet()
 		speedy = 0,
 		btimer = 0,
 		init_angle = a,
+		init_thrust = thrust,
 
 		update=function(self)
 			self.btimer+=1
@@ -58,7 +59,7 @@ function add_bullet()
 				del(bullets, self)
 			end
 
-			self.oy-=4 + (thrust * .1)
+			self.oy-=4 + (self.init_thrust)
 			-- the thrust happens in the y direction but
 			-- after rotation could have an x component
 			-- it effects everything else on screen
@@ -139,17 +140,17 @@ function _update60()
 	if (t>60) t=0
   -- rotate left
 	if (btn(1)) then
-		a += 0.003
+		a += 0.006
 	end
 
   -- rotate right
 	if (btn(0)) then
-		a -= 0.003
+		a -= 0.006
 	end
 
   -- up is accelerate
 	if (btn(2)) then
-		thrust += .12
+		thrust += .15
 	else
 		thrust -= .02
 	end
