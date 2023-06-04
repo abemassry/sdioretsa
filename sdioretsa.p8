@@ -11,7 +11,8 @@ function _init()
 	init_asteroid_count = 6 -- initial value
 	reset_asteroids = true
 	asteroid_count = 0
-  bullet_count = 0
+	bullet_count = 0
+	btn_4_hold = 25
 
 	-- there's only one ship so it's ok if global
 	a = 0 -- the ship's angle
@@ -47,14 +48,22 @@ function add_bullet()
 		ty = 0, -- rotated thrust y component
 		speedx = 0,
 		speedy = 0,
+		btimer = 0,
+		init_angle = a,
 
 		update=function(self)
-			self.oy-=3
+			self.btimer+=1
+			if self.btimer > 30 then
+				bullet_count-=1
+				del(bullets, self)
+			end
+
+			self.oy-=4
 			-- the thrust happens in the y direction but
 			-- after rotation could have an x component
 			-- it effects everything else on screen
-			self.tx = sin(a) * thrust
-			self.ty = cos(a) * thrust
+			self.tx = sin(a-self.init_angle) * thrust
+			self.ty = cos(a-self.init_angle) * thrust
 			self.ox+=(self.speedx) + self.tx
 			self.oy+=(self.speedy) + self.ty
 
@@ -64,7 +73,7 @@ function add_bullet()
 			if (self.oy > 128) self.oy = 0
 			if (self.oy < 0) self.oy = 128
 
-			self.rx,self.ry=rotate(self.ox,self.oy,64,64,a)
+			self.rx,self.ry=rotate(self.ox,self.oy,64,64,a-self.init_angle)
 		end,
 
 		draw=function(self)
@@ -146,7 +155,11 @@ function _update60()
 	end
 	if (thrust < 0) thrust = 0
 
-  if (btn(4) and bullet_count < 4) add_bullet()
+	if (btn(4) and bullet_count < 4 and btn_4_hold > 10) then
+		btn_4_hold = 0
+		add_bullet()
+	end
+	btn_4_hold+=1
 
 	if (a>1) a = 0
 	if (a<0) a = 1
