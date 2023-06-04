@@ -7,6 +7,7 @@ overlay_state = 0
 
 function _init()
 	asteroids={}
+	bullets={}
 	init_asteroid_count = 6 -- initial value
 	reset_asteroids = true
 	asteroid_count = 0
@@ -15,6 +16,8 @@ function _init()
 	-- there's only one ship so it's ok if global
 	a = 0 -- the ship's angle
 	thrust = 0 -- the ship's thrust
+
+	t = 0
 end
 
 
@@ -34,10 +37,40 @@ function rotate(x,y,cx,cy,angle)
 end
 
 function add_bullet()
-  bullet_count+=1
-  add(bullets, {
+	bullet_count+=1
+	add(bullets, {
+		ox = 64,
+		oy = 64,
+		rx = 64, -- rotated bullet position
+		ry = 64, 
+		tx = 0, -- rotated thrust x component
+		ty = 0, -- rotated thrust y component
+		speedx = 0,
+		speedy = 0,
 
-  })
+		update=function(self)
+			self.oy-=3
+			-- the thrust happens in the y direction but
+			-- after rotation could have an x component
+			-- it effects everything else on screen
+			self.tx = sin(a) * thrust
+			self.ty = cos(a) * thrust
+			self.ox+=(self.speedx) + self.tx
+			self.oy+=(self.speedy) + self.ty
+
+			-- the asteroid playing field is connected at the ends
+			if (self.ox > 128) self.ox = 0
+			if (self.ox < 0) self.ox = 128
+			if (self.oy > 128) self.oy = 0
+			if (self.oy < 0) self.oy = 128
+
+			self.rx,self.ry=rotate(self.ox,self.oy,64,64,a)
+		end,
+
+		draw=function(self)
+			pset(self.rx, self.ry, 7)
+		end
+	})
 end
 
 function add_new_asteroid()
@@ -93,6 +126,8 @@ end
 
 
 function _update60()
+	t+=1
+	if (t>60) t=0
   -- rotate left
 	if (btn(1)) then
 		a += 0.003
@@ -111,7 +146,7 @@ function _update60()
 	end
 	if (thrust < 0) thrust = 0
 
-  if (btn(4)) add_bullet()
+  if (btn(4) and bullet_count < 4) add_bullet()
 
 	if (a>1) a = 0
 	if (a<0) a = 1
@@ -124,6 +159,10 @@ function _update60()
 	for a in all(asteroids) do
 		a:update()
 	end
+
+	for b in all(bullets) do
+		b:update()
+	end
 end
 
 function _draw()
@@ -131,16 +170,21 @@ function _draw()
 	for a in all(asteroids) do
 		a:draw()
 	end
+	for b in all(bullets) do
+		b:draw()
+	end
 	pset(64,64,6)
 	pset(63,65,6)
 	pset(63,66,6)
 	pset(65,65,6)
+	pset(65,66,6)
 	--line(64,64,62,67,6)
 	--line(64,64,66,67,6)
 
 
-	if (btn(2)) pset(64,66,6)
+	if (btn(2)) pset(64,67,6)
 	print('a:'..a, 0,0,6)
+	print('bc:'..bullet_count, 0, 6, 6)
 end
 
 function a1(x,y)
