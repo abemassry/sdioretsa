@@ -10,10 +10,137 @@ function _init()
 	init_asteroid_count = 6 -- initial value
 	reset_asteroids = true
 	asteroid_count = 0
+  bullet_count = 0
 
 	-- there's only one ship so it's ok if global
 	a = 0 -- the ship's angle
 	thrust = 0 -- the ship's thrust
+end
+
+
+function rotate(x,y,cx,cy,angle)
+	-- rotate everything when the ship turns
+	local sina=sin(angle)
+	local cosa=cos(angle)
+ 
+	x-=cx
+	y-=cy
+	local rotx=cosa*x-sina*y
+	local roty=sina*x+cosa*y
+	rotx+=cx
+	roty+=cy
+ 
+	return rotx,roty
+end
+
+function add_bullet()
+  bullet_count+=1
+  add(bullets, {
+
+  })
+end
+
+function add_new_asteroid()
+	asteroid_count+=1
+	large_asteroids = {1,3,5,7}
+	add(asteroids, {
+		ox=flr(rnd(128)), -- original asteroid position
+		oy=flr(rnd(128)),
+		rx=0, -- rotated asteroid position
+		ry=0,
+		xv = 0,
+		yv = 0,
+		tx = 0, -- rotated thrust x component
+		ty = 0, -- rotated thrust y component
+		speedx = (rnd(0.75)-0.25),
+		speedy = (rnd(0.75)-0.25),
+		size_accel = 0.33,
+		a_rnd=rnd({1,2,3,4}),
+
+		update=function(self)
+			-- the thrust happens in the y direction but
+			-- after rotation could have an x component
+			-- it effects everything else on screen
+			self.tx = sin(a) * thrust
+			self.ty = cos(a) * thrust
+			self.ox+=(self.size_accel*self.speedx) + self.tx
+			self.oy+=(self.size_accel*self.speedy) + self.ty
+
+			-- the asteroid playing field is connected at the ends
+			if (self.ox > 128) self.ox = 0
+			if (self.ox < 0) self.ox = 128
+			if (self.oy > 128) self.oy = 0
+			if (self.oy < 0) self.oy = 128
+
+			self.rx,self.ry=rotate(self.ox,self.oy,64,64,a)
+
+		end,
+
+		draw=function(self)
+				if (self.a_rnd == 1) then
+					a1(self.rx, self.ry)
+				elseif (self.a_rnd == 2) then
+					a2(self.rx, self.ry)
+				elseif (self.a_rnd == 3) then
+					a3(self.rx, self.ry)
+				else
+					a4(self.rx, self.ry)
+				end
+		end
+	})
+
+end
+
+
+function _update60()
+  -- rotate left
+	if (btn(1)) then
+		a += 0.003
+	end
+
+  -- rotate right
+	if (btn(0)) then
+		a -= 0.003
+	end
+
+  -- up is accelerate
+	if (btn(2)) then
+		thrust += .09
+	else
+		thrust -= .09
+	end
+	if (thrust < 0) thrust = 0
+
+  if (btn(4)) add_bullet()
+
+	if (a>1) a = 0
+	if (a<0) a = 1
+	if (reset_asteroids) then
+		reset_asteroids = false
+		for i=0,init_asteroid_count,1 do
+			add_new_asteroid()
+		end
+	end
+	for a in all(asteroids) do
+		a:update()
+	end
+end
+
+function _draw()
+	cls()
+	for a in all(asteroids) do
+		a:draw()
+	end
+	pset(64,64,6)
+	pset(63,65,6)
+	pset(63,66,6)
+	pset(65,65,6)
+	--line(64,64,62,67,6)
+	--line(64,64,66,67,6)
+
+
+	if (btn(2)) pset(64,66,6)
+	print('a:'..a, 0,0,6)
 end
 
 function a1(x,y)
@@ -195,112 +322,208 @@ function a2(x,y)
 	pset(rx, ry, 6)
 end
 
-function rotate(x,y,cx,cy,angle)
-	-- rotate everything when the ship turns
-	local sina=sin(angle)
-	local cosa=cos(angle)
- 
-	x-=cx
-	y-=cy
-	local rotx=cosa*x-sina*y
-	local roty=sina*x+cosa*y
-	rotx+=cx
-	roty+=cy
- 
-	return rotx,roty
+function a3(x,y)
+	local rx = 0
+	local ry = 0
+	-- center in drawing is x=47 y=8
+	-- rx, ry = rotate(x+0, y-7, x, y, a)
+	rx, ry = rotate(x+0, y-4, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-1, y-5, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-2, y-6, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-3, y-7, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-4, y-7, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-5, y-6, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-6, y-5, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-7, y-4, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-6, y-3, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-6, y-2, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-5, y-1, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-5, y+0, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-6, y+1, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-7, y+2, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-7, y+3, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-6, y+4, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-5, y+5, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-4, y+6, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-3, y+6, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-2, y+5, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-1, y+5, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+0, y+4, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+1, y+4, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+2, y+5, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+3, y+5, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+4, y+6, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+5, y+5, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+6, y+4, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+6, y+3, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+7, y+2, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+8, y+1, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+7, y+0, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+6, y-1, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+5, y-1, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+4, y-2, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+4, y-3, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+5, y-3, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+6, y-4, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+7, y-5, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+6, y-6, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+5, y-7, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+4, y-7, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+3, y-6, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+2, y-5, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+1, y-5, x, y, a)
+	pset(rx, ry, 6)
 end
 
-function add_new_asteroid()
-	asteroid_count+=1
-	large_asteroids = {1,3,5,7}
-	add(asteroids, {
-		ox=flr(rnd(128)), -- original asteroid position
-		oy=flr(rnd(128)),
-		rx=0, -- rotated asteroid position
-		ry=0,
-		xv = 0,
-		yv = 0,
-		tx = 0, -- rotated thrust x component
-		ty = 0, -- rotated thrust y component
-		speedx = (rnd(0.75)-0.25),
-		speedy = (rnd(0.75)-0.25),
-		size_accel = 0.33,
-		a_rnd=rnd({1,2,3,4}),
-
-		update=function(self)
-			-- the thrust happens in the y direction but
-			-- after rotation could have an x component
-			-- it effects everything else on screen
-			self.tx = sin(a) * thrust
-			self.ty = cos(a) * thrust
-			self.ox+=(self.size_accel*self.speedx) + self.tx
-			self.oy+=(self.size_accel*self.speedy) + self.ty
-
-			-- the asteroid playing field is connected at the ends
-			if (self.ox > 128) self.ox = 0
-			if (self.ox < 0) self.ox = 128
-			if (self.oy > 128) self.oy = 0
-			if (self.oy < 0) self.oy = 128
-
-			self.rx,self.ry=rotate(self.ox,self.oy,64,64,a)
-
-		end,
-
-		draw=function(self)
-				if (self.a_rnd == 1) then
-					a1(self.rx, self.ry)
-				elseif (self.a_rnd == 2) then
-					a2(self.rx, self.ry)
-				else
-					a1(self.rx, self.ry)
-				end
-		end
-	})
-
+function a4(x,y)
+	local rx = 0
+	local ry = 0
+	-- center in drawing is x=63 y=8
+	-- rx, ry = rotate(x+0, y-7, x, y, a)
+	rx, ry = rotate(x+0, y-8, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-1, y-7, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-2, y-7, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-3, y-7, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-4, y-7, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-5, y-7, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-5, y-6, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-4, y-5, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-3, y-4, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-4, y-3, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-5, y-3, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-6, y-3, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-7, y-2, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-7, y-1, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-7, y+0, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-7, y+1, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-7, y+2, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-7, y+3, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-6, y+4, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-6, y+5, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-5, y+6, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-4, y+7, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-3, y+6, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-2, y+6, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x-1, y+5, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+0, y+5, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+1, y+5, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+2, y+5, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+3, y+6, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+4, y+6, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+5, y+6, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+6, y+5, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+7, y+4, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+7, y+3, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+6, y+2, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+5, y+1, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+5, y+0, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+4, y-1, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+3, y-2, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+4, y-3, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+5, y-3, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+6, y-4, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+7, y-5, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+6, y-6, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+5, y-6, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+4, y-7, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+3, y-8, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+2, y-8, x, y, a)
+	pset(rx, ry, 6)
+	rx, ry = rotate(x+1, y-8, x, y, a)
+	pset(rx, ry, 6)
 end
 
-
-function _update60()
-
-	if (btn(1)) then
-		a += 0.003
-	end
-	if (btn(0)) then
-		a -= 0.003
-	end
-
-	if (btn(2)) then
-		thrust += .09
-	else
-		thrust -= .09
-	end
-	if (thrust < 0) thrust = 0
-
-	if (a>1) a = 0
-	if (a<0) a = 1
-	if (reset_asteroids) then
-		reset_asteroids = false
-		for i=0,init_asteroid_count,1 do
-			add_new_asteroid()
-		end
-	end
-	for a in all(asteroids) do
-		a:update()
-	end
-end
-
-function _draw()
-	cls()
-	for a in all(asteroids) do
-		a:draw()
-	end
-	line(64,64,62,67,6)
-	line(64,64,66,67,6)
-
-
-	if (btn(2)) line(63,66,64,68,6)
-	print('a:'..a, 0,0,6)
-end
 __gfx__
 00000000000000000000000000006660000000000000000000000000000000066660000000660666066660000060060006000660000000000000000000000000
 00000000000000000000000000060006660000000006600000066000006666600006000006006006600006000606606060666006000000000000000000000000
