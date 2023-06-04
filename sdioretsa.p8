@@ -58,7 +58,7 @@ function add_bullet()
 				del(bullets, self)
 			end
 
-			self.oy-=4
+			self.oy-=4 + (thrust * .1)
 			-- the thrust happens in the y direction but
 			-- after rotation could have an x component
 			-- it effects everything else on screen
@@ -149,11 +149,12 @@ function _update60()
 
   -- up is accelerate
 	if (btn(2)) then
-		thrust += .09
+		thrust += .12
 	else
-		thrust -= .09
+		thrust -= .02
 	end
 	if (thrust < 0) thrust = 0
+  if (thrust > 3) thrust = 3
 
 	if (btn(4) and bullet_count < 4 and btn_4_hold > 10) then
 		btn_4_hold = 0
