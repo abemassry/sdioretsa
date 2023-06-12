@@ -205,89 +205,55 @@ end
 function a1(x,y)
 	local rx = 0
 	local ry = 0
-	-- center in drawing is x=15 y=9
-	rx, ry = rotate(x+0, y-5, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-1, y-5, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-2, y-5, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-3, y-6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-4, y-6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-5, y-6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-6, y-5, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-6, y-4, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-6, y-3, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-6, y-2, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-6, y-1, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-6, y+0, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-6, y+1, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-6, y+2, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-5, y+3, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-4, y+4, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-3, y+5, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-2, y+6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-1, y+6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+0, y+6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+1, y+6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+2, y+6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+3, y+6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+4, y+6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+5, y+6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+6, y+5, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+6, y+4, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+6, y+3, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+6, y+2, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+5, y+1, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+4, y+0, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+4, y-1, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+5, y-2, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+6, y-2, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+7, y-3, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+6, y-4, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+5, y-5, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+4, y-6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+3, y-7, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+2, y-7, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+1, y-6, x, y, a)
-	pset(rx, ry, 6)
+	-- center in drawing is x=15 y=a9
+	points = {
+		{x=0, y=-5},
+		 {x=-1, y=-5},
+		 {x=-2, y=-5},
+		 {x=-3, y=-6},
+		 {x=-4, y=-6},
+		 {x=-5, y=-6},
+		 {x=-6, y=-5},
+		 {x=-6, y=-4},
+		 {x=-6, y=-3},
+		 {x=-6, y=-2},
+		 {x=-6, y=-1},
+		 {x=-6, y=0},
+		 {x=-6, y=1},
+		 {x=-6, y=2},
+		 {x=-5, y=3},
+		 {x=-4, y=4},
+		 {x=-3, y=5},
+		 {x=-2, y=6},
+		 {x=-1, y=6},
+		 {x=0, y=6},
+		 {x=1, y=6},
+		 {x=2, y=6},
+		 {x=3, y=6},
+		 {x=4, y=6},
+		 {x=5, y=6},
+		 {x=6, y=5},
+		 {x=6, y=4},
+		 {x=6, y=3},
+		 {x=6, y=2},
+		 {x=5, y=1},
+		 {x=4, y=0},
+		 {x=4, y=-1},
+		 {x=5, y=-2},
+		 {x=6, y=-2},
+		 {x=7, y=-3},
+		 {x=6, y=-4},
+		 {x=5, y=-5},
+		 {x=4, y=-6},
+		 {x=3, y=-7},
+		 {x=2, y=-7},
+		 {x=1, y=-6}
+	}
+	--print(points.p0.y, 0,18,7)
+	for p in all(points) do
+		rx, ry = rotate(x+p.x, y+p.y, x, y, a)
+		pset(rx, ry, 6)
+	end
 end
 
 function a2(x,y)
@@ -295,90 +261,54 @@ function a2(x,y)
 	local ry = 0
 	-- center in drawing is x=32 y=8
 	-- rx, ry = rotate(x+0, y-7, x, y, a)
-	rx, ry = rotate(x-1, y-7, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-2, y-8, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-3, y-8, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-4, y-8, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-5, y-7, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-6, y-6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-7, y-5, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-7, y-4, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-7, y-3, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-7, y-2, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-7, y-1, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-7, y+0, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-6, y+1, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-5, y+2, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-4, y+3, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-3, y+4, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-2, y+5, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-1, y+6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+0, y+6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+1, y+6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+2, y+6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+3, y+6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+4, y+6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+5, y+6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+6, y+5, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+6, y+4, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+6, y+3, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+5, y+2, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+4, y+1, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+3, y+1, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+2, y+0, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+2, y-1, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+3, y-1, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+4, y-2, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+5, y-2, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+6, y-3, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+6, y-4, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+5, y-5, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+4, y-6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+3, y-6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+2, y-6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+1, y-7, x, y, a)
-	pset(rx, ry, 6)
+	points = {
+		{x=-1, y=-7},
+		{x=-2, y=-8},
+		{x=-3, y=-8},
+		{x=-4, y=-8},
+		{x=-5, y=-7},
+		{x=-6, y=-6},
+		{x=-7, y=-5},
+		{x=-7, y=-4},
+		{x=-7, y=-3},
+		{x=-7, y=-2},
+		{x=-7, y=-1},
+		{x=-7, y=0},
+		{x=-6, y=1},
+		{x=-5, y=2},
+		{x=-4, y=3},
+		{x=-3, y=4},
+		{x=-2, y=5},
+		{x=-1, y=6},
+		{x=0, y=6},
+		{x=1, y=6},
+		{x=2, y=6},
+		{x=3, y=6},
+		{x=4, y=6},
+		{x=5, y=6},
+		{x=6, y=5},
+		{x=6, y=4},
+		{x=6, y=3},
+		{x=5, y=2},
+		{x=4, y=1},
+		{x=3, y=1},
+		{x=2, y=0},
+		{x=2, y=-1},
+		{x=3, y=-1},
+		{x=4, y=-2},
+		{x=5, y=-2},
+		{x=6, y=-3},
+		{x=6, y=-4},
+		{x=5, y=-5},
+		{x=4, y=-6},
+		{x=3, y=-6},
+		{x=2, y=-6},
+		{x=1, y=-7}
+	}
+	for p in all(points) do
+		rx, ry = rotate(x+p.x, y+p.y, x, y, a)
+		pset(rx, ry, 6)
+	end
 end
 
 function a3(x,y)
@@ -386,96 +316,57 @@ function a3(x,y)
 	local ry = 0
 	-- center in drawing is x=47 y=8
 	-- rx, ry = rotate(x+0, y-7, x, y, a)
-	rx, ry = rotate(x+0, y-4, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-1, y-5, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-2, y-6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-3, y-7, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-4, y-7, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-5, y-6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-6, y-5, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-7, y-4, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-6, y-3, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-6, y-2, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-5, y-1, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-5, y+0, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-6, y+1, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-7, y+2, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-7, y+3, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-6, y+4, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-5, y+5, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-4, y+6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-3, y+6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-2, y+5, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-1, y+5, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+0, y+4, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+1, y+4, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+2, y+5, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+3, y+5, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+4, y+6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+5, y+5, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+6, y+4, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+6, y+3, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+7, y+2, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+8, y+1, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+7, y+0, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+6, y-1, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+5, y-1, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+4, y-2, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+4, y-3, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+5, y-3, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+6, y-4, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+7, y-5, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+6, y-6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+5, y-7, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+4, y-7, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+3, y-6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+2, y-5, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+1, y-5, x, y, a)
-	pset(rx, ry, 6)
+	points = {
+		{x=0, y=-4},
+		{x=-1, y=-5},
+		{x=-2, y=-6},
+		{x=-3, y=-7},
+		{x=-4, y=-7},
+		{x=-5, y=-6},
+		{x=-6, y=-5},
+		{x=-7, y=-4},
+		{x=-6, y=-3},
+		{x=-6, y=-2},
+		{x=-5, y=-1},
+		{x=-5, y=0},
+		{x=-6, y=1},
+		{x=-7, y=2},
+		{x=-7, y=3},
+		{x=-6, y=4},
+		{x=-5, y=5},
+		{x=-4, y=6},
+		{x=-3, y=6},
+		{x=-2, y=5},
+		{x=-1, y=5},
+		{x=0, y=4},
+		{x=1, y=4},
+		{x=2, y=5},
+		{x=3, y=5},
+		{x=4, y=6},
+		{x=5, y=5},
+		{x=6, y=4},
+		{x=6, y=3},
+		{x=7, y=2},
+		{x=8, y=1},
+		{x=7, y=0},
+		{x=6, y=-1},
+		{x=5, y=-1},
+		{x=4, y=-2},
+		{x=4, y=-3},
+		{x=5, y=-3},
+		{x=6, y=-4},
+		{x=7, y=-5},
+		{x=6, y=-6},
+		{x=5, y=-7},
+		{x=4, y=-7},
+		{x=3, y=-6},
+		{x=2, y=-5},
+		{x=1, y=-5}
+	}
+	for p in all(points) do
+		rx, ry = rotate(x+p.x, y+p.y, x, y, a)
+		pset(rx, ry, 6)
+	end
 end
 
 function a4(x,y)
@@ -483,104 +374,63 @@ function a4(x,y)
 	local ry = 0
 	-- center in drawing is x=63 y=8
 	-- rx, ry = rotate(x+0, y-7, x, y, a)
-	rx, ry = rotate(x+0, y-8, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-1, y-7, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-2, y-7, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-3, y-7, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-4, y-7, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-5, y-7, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-5, y-6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-4, y-5, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-3, y-4, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-4, y-3, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-5, y-3, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-6, y-3, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-7, y-2, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-7, y-1, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-7, y+0, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-7, y+1, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-7, y+2, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-7, y+3, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-6, y+4, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-6, y+5, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-5, y+6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-4, y+7, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-3, y+6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-2, y+6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x-1, y+5, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+0, y+5, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+1, y+5, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+2, y+5, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+3, y+6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+4, y+6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+5, y+6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+6, y+5, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+7, y+4, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+7, y+3, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+6, y+2, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+5, y+1, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+5, y+0, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+4, y-1, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+3, y-2, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+4, y-3, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+5, y-3, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+6, y-4, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+7, y-5, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+6, y-6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+5, y-6, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+4, y-7, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+3, y-8, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+2, y-8, x, y, a)
-	pset(rx, ry, 6)
-	rx, ry = rotate(x+1, y-8, x, y, a)
-	pset(rx, ry, 6)
+	points = {
+		{x=0, y=-8},
+		{x=-1, y=-7},
+		{x=-2, y=-7},
+		{x=-3, y=-7},
+		{x=-4, y=-7},
+		{x=-5, y=-7},
+		{x=-5, y=-6},
+		{x=-4, y=-5},
+		{x=-3, y=-4},
+		{x=-4, y=-3},
+		{x=-5, y=-3},
+		{x=-6, y=-3},
+		{x=-7, y=-2},
+		{x=-7, y=-1},
+		{x=-7, y=0},
+		{x=-7, y=1},
+		{x=-7, y=2},
+		{x=-7, y=3},
+		{x=-6, y=4},
+		{x=-6, y=5},
+		{x=-5, y=6},
+		{x=-4, y=7},
+		{x=-3, y=6},
+		{x=-2, y=6},
+		{x=-1, y=5},
+		{x=0, y=5},
+		{x=1, y=5},
+		{x=2, y=5},
+		{x=3, y=6},
+		{x=4, y=6},
+		{x=5, y=6},
+		{x=6, y=5},
+		{x=7, y=4},
+		{x=7, y=3},
+		{x=6, y=2},
+		{x=5, y=1},
+		{x=5, y=0},
+		{x=4, y=-1},
+		{x=3, y=-2},
+		{x=4, y=-3},
+		{x=5, y=-3},
+		{x=6, y=-4},
+		{x=7, y=-5},
+		{x=6, y=-6},
+		{x=5, y=-6},
+		{x=4, y=-7},
+		{x=3, y=-8},
+		{x=2, y=-8},
+		{x=1, y=-8}
+	}
+
+	for p in all(points) do
+		rx, ry = rotate(x+p.x, y+p.y, x, y, a)
+		pset(rx, ry, 6)
+	end
+
 end
 
 __gfx__
