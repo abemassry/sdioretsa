@@ -79,6 +79,10 @@ function add_bullet()
 
 		draw=function(self)
 			pset(self.rx, self.ry, 7)
+		end,
+		remove=function(self)
+			bullet_count-=1
+			del(bullets, self)
 		end
 	})
 end
@@ -95,6 +99,7 @@ function add_new_asteroid()
 		yv = 0,
 		tx = 0, -- rotated thrust x component
 		ty = 0, -- rotated thrust y component
+		blow_up = 0,
 		speedx = (rnd(0.75)-0.25),
 		speedy = (rnd(0.75)-0.25),
 		size_accel = 0.33,
@@ -116,10 +121,22 @@ function add_new_asteroid()
 			if (self.oy < 0) self.oy = 128
 
 			self.rx,self.ry=rotate(self.ox,self.oy,64,64,a)
+			if self.blow_up > 30 then
+				self.blow_up = 0
+			end
+			for b in all(bullets) do
+				if (b.rx > self.rx-8 and b.rx <self.rx+8 and b.ry > self.ry-8 and b.ry < self.ry+8) then
+					self.blow_up +=1
+					b:remove()
+				end
+			end
 
 		end,
 
 		draw=function(self)
+				if (self.blow_up > 0) then
+					rect(self.rx,self.ry,self.rx-2,self.ry-2,8)
+				end
 				if (self.a_rnd == 1) then
 					a1(self.rx, self.ry)
 				elseif (self.a_rnd == 2) then
