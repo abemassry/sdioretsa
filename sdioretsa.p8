@@ -8,8 +8,9 @@ overlay_state = 0
 function _init()
 	asteroids={}
 	bullets={}
-	init_asteroid_count = 6 -- initial value
+	init_asteroid_count = 4 -- initial value
 	reset_asteroids = true
+	btn_4_press = false
 	asteroid_count = 0
 	bullet_count = 0
 	btn_4_hold = 25
@@ -54,12 +55,12 @@ function add_bullet()
 
 		update=function(self)
 			self.btimer+=1
-			if self.btimer > 30 then
+			if self.btimer > 45 then
 				bullet_count-=1
 				del(bullets, self)
 			end
 
-			self.oy-=4 + (self.init_thrust)
+			self.oy-=2 + (self.init_thrust)
 			-- the thrust happens in the y direction but
 			-- after rotation could have an x component
 			-- it effects everything else on screen
@@ -87,12 +88,13 @@ function add_bullet()
 	})
 end
 
-function add_new_asteroid()
+function add_new_asteroid(size_new, xinit, yinit)
 	asteroid_count+=1
 	large_asteroids = {1,3,5,7}
+
 	add(asteroids, {
-		ox=flr(rnd(128)), -- original asteroid position
-		oy=flr(rnd(128)),
+		ox=xinit, -- original asteroid position
+		oy=yinit,
 		rx=0, -- rotated asteroid position
 		ry=0,
 		xv = 0,
@@ -104,6 +106,7 @@ function add_new_asteroid()
 		speedy = (rnd(0.75)-0.25),
 		size_accel = 0.33,
 		a_rnd=rnd({1,2,3,4}),
+		size=size_new,
 
 		update=function(self)
 			-- the thrust happens in the y direction but
@@ -121,13 +124,23 @@ function add_new_asteroid()
 			if (self.oy < 0) self.oy = 128
 
 			self.rx,self.ry=rotate(self.ox,self.oy,64,64,a)
+			if self.blow_up > 0 then
+				self.blow_up +=1
+			end
 			if self.blow_up > 30 then
-				self.blow_up = 0
+				self:remove()
 			end
 			for b in all(bullets) do
-				if (b.rx > self.rx-8 and b.rx <self.rx+8 and b.ry > self.ry-8 and b.ry < self.ry+8) then
+				if (b.rx > self.rx-self.size and b.rx <self.rx+self.size and b.ry > self.ry-self.size and b.ry < self.ry+self.size) then
 					self.blow_up +=1
 					b:remove()
+					if (self.size == 8) then
+						add_new_asteroid(4, self.ox, self.oy)
+						add_new_asteroid(4, self.ox, self.oy)
+					elseif (self.size == 4) then
+						add_new_asteroid(2, self.ox, self.oy)
+						add_new_asteroid(2, self.ox, self.oy)
+					end
 				end
 			end
 
@@ -138,14 +151,26 @@ function add_new_asteroid()
 					rect(self.rx,self.ry,self.rx-2,self.ry-2,8)
 				end
 				if (self.a_rnd == 1) then
-					a1(self.rx, self.ry)
+					if (self.size == 8) then
+						a1(self.rx, self.ry)
+					elseif (self.size == 4) then
+						a1m(self.rx, self.ry)
+					end
 				elseif (self.a_rnd == 2) then
-					a2(self.rx, self.ry)
+					if (self.size == 8) then
+						a2(self.rx, self.ry)
+					elseif (self.size == 4) then
+						a2m(self.rx, self.ry)
+					end
 				elseif (self.a_rnd == 3) then
 					a3(self.rx, self.ry)
 				else
 					a4(self.rx, self.ry)
 				end
+		end,
+
+		remove=function(self)
+			del(asteroids, self)
 		end
 	})
 
@@ -167,25 +192,32 @@ function _update60()
 
   -- up is accelerate
 	if (btn(2)) then
-		thrust += .15
+		thrust += .10
 	else
-		thrust -= .02
+		thrust -= .01
 	end
 	if (thrust < 0) thrust = 0
   if (thrust > 3) thrust = 3
 
-	if (btn(4) and bullet_count < 4 and btn_4_hold > 10) then
+	-- if (btn(4) and bullet_count < 4 and btn_4_hold > 30) then
+	if (btn_4_press == false and btn(4) and bullet_count < 4 and btn_4_hold > 5) then
 		btn_4_hold = 0
 		add_bullet()
 	end
 	btn_4_hold+=1
+	if (btn(4)) then
+		btn_4_press = true
+	else
+		btn_4_press = false
+	end
+	-- if (not btn(4)) btn_4_hold = 0
 
 	if (a>1) a = 0
 	if (a<0) a = 1
 	if (reset_asteroids) then
 		reset_asteroids = false
-		for i=0,init_asteroid_count,1 do
-			add_new_asteroid()
+		for i=1,init_asteroid_count,1 do
+			add_new_asteroid(8, flr(rnd(128)), flr(rnd(128)))
 		end
 	end
 	for a in all(asteroids) do
@@ -448,6 +480,83 @@ function a4(x,y)
 		pset(rx, ry, 6)
 	end
 
+end
+
+function a1m(x,y)
+	local rx = 0
+	local ry = 0
+	-- center in drawing is x=15 y=a9
+	points = {
+		{x=0, y=-3},
+		{x=-1, y=-4},
+		{x=-2, y=-4},
+		{x=-3, y=-3},
+		{x=-3, y=-2},
+		{x=-3, y=-1},
+		{x=-3, y=0},
+		{x=-2, y=1},
+		{x=-1, y=2},
+		{x=0, y=3},
+		{x=1, y=3},
+		{x=2, y=2},
+		{x=3, y=1},
+		{x=3, y=0},
+		{x=2, y=-1},
+		{x=3, y=-2},
+		{x=3, y=-3},
+		{x=3, y=-4},
+		{x=2, y=-4},
+		{x=1, y=-4},
+	}
+	--print(points.p0.y, 0,18,7)
+	for p in all(points) do
+		rx, ry = rotate(x+p.x, y+p.y, x, y, a)
+		pset(rx, ry, 6)
+	end
+end
+
+function a2m(x,y)
+	local rx = 0
+	local ry = 0
+	points = {
+		{x=0, y=-4},
+		{x=-1, y=-4},
+		{x=-2, y=-4},
+		{x=-3, y=-3},
+		{x=-3, y=-2},
+		{x=-3, y=-1},
+		{x=-3, y=0},
+		{x=-3, y=1},
+		{x=-3, y=2},
+		{x=-2, y=3},
+		{x=-1, y=3},
+		{x=0, y=3},
+		{x=1, y=3},
+		{x=2, y=2},
+		{x=1, y=1},
+		{x=0, y=0},
+		{x=1, y=-1},
+		{x=2, y=-1},
+		{x=3, y=0},
+		{x=4, y=-1},
+		{x=3, y=-2},
+		{x=2, y=-3},
+		{x=1, y=-4}
+	}
+	for p in all(points) do
+		rx, ry = rotate(x+p.x, y+p.y, x, y, a)
+		pset(rx, ry, 6)
+	end
+end
+function a3m(x,y)
+	local rx = 0
+	local ry = 0
+	points = {
+	}
+	for p in all(points) do
+		rx, ry = rotate(x+p.x, y+p.y, x, y, a)
+		pset(rx, ry, 6)
+	end
 end
 
 __gfx__
