@@ -17,7 +17,12 @@ function _init()
 
 	-- there's only one ship so it's ok if global
 	a = 0 -- the ship's angle
+	ma = 0 -- the mathematical angle based on xy coordinates
+	t_a = 0 -- the ship's angle thrust activate
 	thrust = 0 -- the ship's thrust
+	momentum = 0 -- the ship's momentum vector
+	tx = 0 -- the rotated x thrust component
+	ty = 0 -- the rotated y thrust component
 
 	t = 0
 end
@@ -101,19 +106,21 @@ function add_new_asteroid(size_new, xinit, yinit)
 		yv = 0,
 		tx = 0, -- rotated thrust x component
 		ty = 0, -- rotated thrust y component
+		tdirection = -1,
 		blow_up = 0,
-		speedx = (rnd(0.75)-0.25),
-		speedy = (rnd(0.75)-0.25),
+		speedx = (rnd(0.75)*(8/size_new)-0.25),
+		speedy = (rnd(0.75)*(8/size_new)-0.25),
 		size_accel = 0.33,
 		a_rnd=rnd({1,2,3,4}),
+		init_angle = 0,
 		size=size_new,
 
 		update=function(self)
 			-- the thrust happens in the y direction but
 			-- after rotation could have an x component
 			-- it effects everything else on screen
-			self.tx = sin(a) * thrust
-			self.ty = cos(a) * thrust
+			self.tx = sin(self.init_angle+t_a) * thrust
+			self.ty = cos(self.init_angle+t_a) * thrust
 			self.ox+=(self.size_accel*self.speedx) + self.tx
 			self.oy+=(self.size_accel*self.speedy) + self.ty
 
@@ -131,7 +138,7 @@ function add_new_asteroid(size_new, xinit, yinit)
 				self:remove()
 			end
 			for b in all(bullets) do
-				if (b.rx > self.rx-self.size and b.rx <self.rx+self.size and b.ry > self.ry-self.size and b.ry < self.ry+self.size) then
+				if (b.rx > self.rx-self.size and b.rx <self.rx+self.size and b.ry > self.ry-self.size and b.ry < self.ry+self.size and self.blow_up < 1) then
 					self.blow_up +=1
 					b:remove()
 					if (self.size == 8) then
@@ -149,23 +156,41 @@ function add_new_asteroid(size_new, xinit, yinit)
 		draw=function(self)
 				if (self.blow_up > 0) then
 					rect(self.rx,self.ry,self.rx-2,self.ry-2,8)
-				end
-				if (self.a_rnd == 1) then
-					if (self.size == 8) then
-						a1(self.rx, self.ry)
-					elseif (self.size == 4) then
-						a1m(self.rx, self.ry)
-					end
-				elseif (self.a_rnd == 2) then
-					if (self.size == 8) then
-						a2(self.rx, self.ry)
-					elseif (self.size == 4) then
-						a2m(self.rx, self.ry)
-					end
-				elseif (self.a_rnd == 3) then
-					a3(self.rx, self.ry)
 				else
-					a4(self.rx, self.ry)
+					-- determine which asteroid to draw
+					if (self.a_rnd == 1) then
+						if (self.size == 8) then
+							a1(self.rx, self.ry)
+						elseif (self.size == 4) then
+							a1m(self.rx, self.ry)
+						elseif (self.size == 2) then
+							a1s(self.rx, self.ry)
+						end
+					elseif (self.a_rnd == 2) then
+						if (self.size == 8) then
+							a2(self.rx, self.ry)
+						elseif (self.size == 4) then
+							a2m(self.rx, self.ry)
+						elseif (self.size == 2) then
+							a2s(self.rx, self.ry)
+						end
+					elseif (self.a_rnd == 3) then
+						if (self.size == 8) then
+							a3(self.rx, self.ry)
+						elseif (self.size == 4) then
+							a3m(self.rx, self.ry)
+						elseif (self.size == 2) then
+							a3s(self.rx, self.ry)
+						end
+					else
+						if (self.size == 8) then
+							a4(self.rx, self.ry)
+						elseif (self.size == 4) then
+							a4m(self.rx, self.ry)
+						elseif (self.size == 2) then
+							a4s(self.rx, self.ry)
+						end
+					end
 				end
 		end,
 
@@ -182,22 +207,25 @@ function _update60()
 	if (t>60) t=0
   -- rotate left
 	if (btn(1)) then
-		a += 0.006
+		a += 0.008
 	end
 
   -- rotate right
 	if (btn(0)) then
-		a -= 0.006
+		a -= 0.008
 	end
-
+	
   -- up is accelerate
 	if (btn(2)) then
 		thrust += .10
+		t_a = a
 	else
-		thrust -= .01
+		thrust -= .005
 	end
 	if (thrust < 0) thrust = 0
-  if (thrust > 3) thrust = 3
+	if (thrust > 3) thrust = 3
+	tx = sin(a) * thrust
+	ty = cos(a) * thrust
 
 	-- if (btn(4) and bullet_count < 4 and btn_4_hold > 30) then
 	if (btn_4_press == false and btn(4) and bullet_count < 4 and btn_4_hold > 5) then
@@ -552,7 +580,140 @@ function a3m(x,y)
 	local rx = 0
 	local ry = 0
 	points = {
+		{x=0, y=-3},
+		{x=-1, y=-3},
+		{x=-2, y=-4},
+		{x=-3, y=-3},
+		{x=-4, y=-2},
+		{x=-3, y=-1},
+		{x=-3, y=0},
+		{x=-4, y=1},
+		{x=-3, y=2},
+		{x=-2, y=3},
+		{x=-1, y=3},
+		{x=0, y=2},
+		{x=1, y=3},
+		{x=2, y=3},
+		{x=3, y=2},
+		{x=2, y=1},
+		{x=2, y=0},
+		{x=3, y=-1},
+		{x=3, y=-2},
+		{x=2, y=-3},
+		{x=1, y=-4}
 	}
+	for p in all(points) do
+		rx, ry = rotate(x+p.x, y+p.y, x, y, a)
+		pset(rx, ry, 6)
+	end
+end
+function a4m(x,y)
+	local rx = 0
+	local ry = 0
+	points = {
+		{x=0, y=-1},
+		{x=0, y=-3},
+		{x=-1, y=-3},
+		{x=-2, y=-3},
+		{x=-3, y=-4},
+		{x=-4, y=-3},
+		{x=-4, y=-2},
+		{x=-3, y=-1},
+		{x=-3, y=0},
+		{x=-4, y=1},
+		{x=-4, y=2},
+		{x=-3, y=3},
+		{x=-2, y=2},
+		{x=-1, y=2},
+		{x=0, y=2},
+		{x=1, y=3},
+		{x=2, y=3},
+		{x=3, y=2},
+		{x=2, y=1},
+		{x=1, y=0},
+		{x=1, y=-2},
+		{x=2, y=-2},
+		{x=3, y=-3},
+		{x=2, y=-4}
+	}
+	for p in all(points) do
+		rx, ry = rotate(x+p.x, y+p.y, x, y, a)
+		pset(rx, ry, 6)
+	end
+end
+
+function a1s(x,y)
+	local rx = 0
+	local ry = 0
+	-- center in drawing is x=15 y=a9
+	points = {
+		{x=0, y=1},
+		{x=-1, y=0},
+		{x=1, y=0},
+		{x=0, y=-1},
+	}
+	--print(points.p0.y, 0,18,7)
+	for p in all(points) do
+		rx, ry = rotate(x+p.x, y+p.y, x, y, a)
+		pset(rx, ry, 6)
+	end
+end
+function a2s(x,y)
+	local rx = 0
+	local ry = 0
+	-- center in drawing is x=15 y=a9
+	points = {
+		{x=0, y=-1},
+		{x=0, y=-2},
+		{x=-1, y=-1},
+		{x=-2, y=0},
+		{x=-1, y=1},
+		{x=-1, y=2},
+		{x=0, y=1},
+		{x=1, y=0}
+	}
+	--print(points.p0.y, 0,18,7)
+	for p in all(points) do
+		rx, ry = rotate(x+p.x, y+p.y, x, y, a)
+		pset(rx, ry, 6)
+	end
+end
+function a3s(x,y)
+	local rx = 0
+	local ry = 0
+	-- center in drawing is x=15 y=a9
+	points = {
+		{x=1, y=-2},
+		{x=0, y=-2},
+		{x=-1, y=-1},
+		{x=-1, y=0},
+		{x=0, y=1},
+		{x=1, y=1},
+		{x=2, y=0},
+		{x=2, y=-1}
+	}
+	--print(points.p0.y, 0,18,7)
+	for p in all(points) do
+		rx, ry = rotate(x+p.x, y+p.y, x, y, a)
+		pset(rx, ry, 6)
+	end
+end
+function a4s(x,y)
+	local rx = 0
+	local ry = 0
+	-- center in drawing is x=15 y=a9
+	points = {
+		{x=0, y=0},
+		{x=0, y=-2},
+		{x=-1, y=-2},
+		{x=-2, y=-1},
+		{x=-3, y=0},
+		{x=-2, y=1},
+		{x=-1, y=2},
+		{x=0, y=1},
+		{x=1, y=-1}
+	}
+	--print(points.p0.y, 0,18,7)
 	for p in all(points) do
 		rx, ry = rotate(x+p.x, y+p.y, x, y, a)
 		pset(rx, ry, 6)
