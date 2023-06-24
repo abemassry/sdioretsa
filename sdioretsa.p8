@@ -17,20 +17,18 @@ function _init()
 
 	-- there's only one ship so it's ok if global
 	a = 0 -- the ship's angle
-	ma = 0 -- the mathematical angle based on xy coordinates
 	t_a = 0 -- the ship's angle thrust activate
 	pt_a = 0 -- previous thrust angle
 	t_x = 0 -- x component of ship thrust
 	t_y = 0 -- y component of ship thrust
-	tvx = 0
-	tvy = 0
+	tvx = 0 -- thrust x component
+	tvy = 0 -- thrust y copmonent
 	thrust = 0 -- the ship's thrust
 
 	velocity = 0 -- the ship's speed (can be added to or subtracted from by thrust)
 	vx = 0 -- ship's velocity x component
 	vy = 0 -- ship's velocity y component
 	vt = 0
-	momentum = 0 -- the ship's momentum vector
 	tx = 0 -- the rotated x thrust component
 	ty = 0 -- the rotated y thrust component
 
@@ -131,29 +129,21 @@ function add_new_asteroid(size_new, xinit, yinit)
 			-- the thrust happens in the y direction but
 			-- after rotation could have an x component
 			-- it effects everything else on screen
-			-- self.vx = sin(self.init_angle+t_a) * velocity
-			-- self.vy = cos(self.init_angle+t_a) * velocity
 			if btn(2) then
-				self.vx = self.vx + (tvx * 0.04)
-				self.vy = self.vy + (tvy * 0.04)
+				self.vx = self.vx + (tvx * 0.04) -- thrust component against velocity
+				self.vy = self.vy + (tvy * 0.04) -- can be negative
 			end
-			if (self.vx > 2.5) self.vx = 2.5
+			if (self.vx > 2.5) self.vx = 2.5 -- speed limits
 			if (self.vx < -2.5) self.vx = -2.5
 			if (self.vy > 2.5) self.vy = 2.5
 			if (self.vy < -2.5) self.vy = -2.5
-			if (self.vx > 0) self.vx -= .001
+			if (self.vx > 0) self.vx -= .001 -- deceleration
 			if (self.vx < 0) self.vx += .001
 			if (self.vy > 0) self.vy -= .001
 			if (self.vy < 0) self.vy += .001
 
-
-
-			-- self.vx = (sin(self.init_angle+t_a) * velocity) + tvx
-			-- self.vy = (cos(self.init_angle+t_a) * velocity) + tvy
-			-- self.ox+=(self.size_accel*self.speedx) + self.tx
-			-- self.oy+=(self.size_accel*self.speedy) + self.ty
-			self.ox+=((self.size_accel*self.speedx) + self.vx)
-			self.oy+=((self.size_accel*self.speedy) + self.vy)
+			self.ox+=((self.size_accel*self.speedx) + self.vx) -- update non rotated x
+			self.oy+=((self.size_accel*self.speedy) + self.vy) -- update non rotated y
 
 			-- the asteroid playing field is connected at the ends
 			if (self.ox > 128) self.ox = 0
@@ -161,7 +151,7 @@ function add_new_asteroid(size_new, xinit, yinit)
 			if (self.oy > 128) self.oy = 0
 			if (self.oy < 0) self.oy = 128
 
-			self.rx,self.ry=rotate(self.ox,self.oy,64,64,a)
+			self.rx,self.ry=rotate(self.ox,self.oy,64,64,a) -- determine rotated pos
 			if self.blow_up > 0 then
 				self.blow_up +=1
 			end
@@ -251,14 +241,12 @@ function _update60()
 	end
 
   -- up is accelerate
+	-- first part of ship acceleration and velocity
 	if (btn(2)) then
-		pt_a = t_a
-		tx = sin(a) * .10
-		ty = cos(a) * .10
 		t_a = a
 		if (velocity > 0) then
-			tvx = sin(t_a) * velocity
-			tvy = cos(t_a) * velocity
+			tvx = sin(t_a) * velocity -- thrust x component
+			tvy = cos(t_a) * velocity -- thrust y component
 		end
 		thrust = .1
 	else
@@ -267,11 +255,6 @@ function _update60()
 	velocity += thrust
 	if (velocity < 0) velocity = 0
 	if (velocity > 3) velocity = 3
-		
-	vx = sin(a) * velocity
-	vy = cos(a) * velocity
-	vx = vx + tx
-	vy = vy + ty
 
 	-- if (btn(4) and bullet_count < 4 and btn_4_hold > 30) then
 	if (btn_4_press == false and btn(4) and bullet_count < 4 and btn_4_hold > 5) then
