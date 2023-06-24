@@ -19,7 +19,17 @@ function _init()
 	a = 0 -- the ship's angle
 	ma = 0 -- the mathematical angle based on xy coordinates
 	t_a = 0 -- the ship's angle thrust activate
+	pt_a = 0 -- previous thrust angle
+	t_x = 0 -- x component of ship thrust
+	t_y = 0 -- y component of ship thrust
+	tvx = 0
+	tvy = 0
 	thrust = 0 -- the ship's thrust
+
+	velocity = 0 -- the ship's speed (can be added to or subtracted from by thrust)
+	vx = 0 -- ship's velocity x component
+	vy = 0 -- ship's velocity y component
+	vt = 0
 	momentum = 0 -- the ship's momentum vector
 	tx = 0 -- the rotated x thrust component
 	ty = 0 -- the rotated y thrust component
@@ -50,13 +60,13 @@ function add_bullet()
 		oy = 64,
 		rx = 64, -- rotated bullet position
 		ry = 64, 
-		tx = 0, -- rotated thrust x component
-		ty = 0, -- rotated thrust y component
+		vx = 0, -- rotated velocity x component
+		vy = 0, -- rotated velocity y component
 		speedx = 0,
 		speedy = 0,
 		btimer = 0,
 		init_angle = a,
-		init_thrust = thrust,
+		init_velocity = velocity,
 
 		update=function(self)
 			self.btimer+=1
@@ -65,14 +75,14 @@ function add_bullet()
 				del(bullets, self)
 			end
 
-			self.oy-=2 + (self.init_thrust)
-			-- the thrust happens in the y direction but
+			self.oy-=2 + (self.init_velocity)
+			-- the velocity happens in the y direction but
 			-- after rotation could have an x component
 			-- it effects everything else on screen
-			self.tx = sin(a-self.init_angle) * thrust
-			self.ty = cos(a-self.init_angle) * thrust
-			self.ox+=(self.speedx) + self.tx
-			self.oy+=(self.speedy) + self.ty
+			self.vx = sin(a-self.init_angle) * velocity
+			self.vy = cos(a-self.init_angle) * velocity
+			self.ox+=(self.speedx) + self.vx
+			self.oy+=(self.speedy) + self.vy
 
 			-- the asteroid playing field is connected at the ends
 			if (self.ox > 128) self.ox = 0
@@ -104,6 +114,8 @@ function add_new_asteroid(size_new, xinit, yinit)
 		ry=0,
 		xv = 0,
 		yv = 0,
+		vx = 0, -- rotated velocity x component
+		vy = 0, -- rotated velocity y component
 		tx = 0, -- rotated thrust x component
 		ty = 0, -- rotated thrust y component
 		tdirection = -1,
@@ -119,10 +131,29 @@ function add_new_asteroid(size_new, xinit, yinit)
 			-- the thrust happens in the y direction but
 			-- after rotation could have an x component
 			-- it effects everything else on screen
-			self.tx = sin(self.init_angle+t_a) * thrust
-			self.ty = cos(self.init_angle+t_a) * thrust
-			self.ox+=(self.size_accel*self.speedx) + self.tx
-			self.oy+=(self.size_accel*self.speedy) + self.ty
+			-- self.vx = sin(self.init_angle+t_a) * velocity
+			-- self.vy = cos(self.init_angle+t_a) * velocity
+			if btn(2) then
+				self.vx = self.vx + (tvx * 0.04)
+				self.vy = self.vy + (tvy * 0.04)
+			end
+			if (self.vx > 2.5) self.vx = 2.5
+			if (self.vx < -2.5) self.vx = -2.5
+			if (self.vy > 2.5) self.vy = 2.5
+			if (self.vy < -2.5) self.vy = -2.5
+			if (self.vx > 0) self.vx -= .001
+			if (self.vx < 0) self.vx += .001
+			if (self.vy > 0) self.vy -= .001
+			if (self.vy < 0) self.vy += .001
+
+
+
+			-- self.vx = (sin(self.init_angle+t_a) * velocity) + tvx
+			-- self.vy = (cos(self.init_angle+t_a) * velocity) + tvy
+			-- self.ox+=(self.size_accel*self.speedx) + self.tx
+			-- self.oy+=(self.size_accel*self.speedy) + self.ty
+			self.ox+=((self.size_accel*self.speedx) + self.vx)
+			self.oy+=((self.size_accel*self.speedy) + self.vy)
 
 			-- the asteroid playing field is connected at the ends
 			if (self.ox > 128) self.ox = 0
@@ -135,9 +166,13 @@ function add_new_asteroid(size_new, xinit, yinit)
 				self.blow_up +=1
 			end
 			if self.blow_up > 30 then
+				-- do astroid particle animation
 				self:remove()
 			end
 			for b in all(bullets) do
+				-- check for collisions between all bullets and this asteroid
+				-- the idea is there are less bullets than asteroids so it's
+				-- less expensive
 				if (b.rx > self.rx-self.size and b.rx <self.rx+self.size and b.ry > self.ry-self.size and b.ry < self.ry+self.size and self.blow_up < 1) then
 					self.blow_up +=1
 					b:remove()
@@ -214,18 +249,29 @@ function _update60()
 	if (btn(0)) then
 		a -= 0.008
 	end
-	
+
   -- up is accelerate
 	if (btn(2)) then
-		thrust += .10
+		pt_a = t_a
+		tx = sin(a) * .10
+		ty = cos(a) * .10
 		t_a = a
+		if (velocity > 0) then
+			tvx = sin(t_a) * velocity
+			tvy = cos(t_a) * velocity
+		end
+		thrust = .1
 	else
-		thrust -= .005
+		thrust = -.005
 	end
-	if (thrust < 0) thrust = 0
-	if (thrust > 3) thrust = 3
-	tx = sin(a) * thrust
-	ty = cos(a) * thrust
+	velocity += thrust
+	if (velocity < 0) velocity = 0
+	if (velocity > 3) velocity = 3
+		
+	vx = sin(a) * velocity
+	vy = cos(a) * velocity
+	vx = vx + tx
+	vy = vy + ty
 
 	-- if (btn(4) and bullet_count < 4 and btn_4_hold > 30) then
 	if (btn_4_press == false and btn(4) and bullet_count < 4 and btn_4_hold > 5) then
@@ -276,7 +322,11 @@ function _draw()
 
 	if (btn(2)) pset(64,67,6)
 	print('a:'..a, 0,0,6)
-	print('bc:'..bullet_count, 0, 6, 6)
+	print('t_a:'..t_a, 0,6,6)
+	print('bc:'..bullet_count, 0, 12, 6)
+	print('sina:'..sin(a), 0,18,6)
+	print('sint_a:'..sin(t_a), 0,24,6)
+	print('vt:'..sin(vt), 0,30,6)
 end
 
 function a1(x,y)
