@@ -33,6 +33,7 @@ function _init()
 	ty = 0 -- the rotated y thrust component
 
 	t = 0
+	one_up_particles={}
 end
 
 
@@ -101,6 +102,47 @@ function add_bullet()
 	})
 end
 
+function add_explode_particle(xinit, yinit, rinit, direction, tinit)
+	for ri=rinit,rinit+10,1 do
+		for i=0,1,0.025 do
+			add(one_up_particles, {
+				-- x=xinit+(((ri+tinit)*cos(i))*0.4),
+				-- y=yinit+((((ri+tinit)*sin(i))+tinit)*0.4),
+				x=xinit,
+				y=yinit,
+				t=tinit,
+				d=direction,
+				draw=function(self)
+					-- TODO: fall faster
+					if (flr(rnd(2)) == 0) then
+						if (direction < 0) then
+							pset(self.x+(((ri*0.75)+self.t)*cos(i)), self.y+(((ri*0.75)+self.t)*sin(i))-(self.t)-5, 12)
+						else
+							pset(self.x+(((ri*0.5)+self.t)*cos(i)), self.y+(((ri*0.5)+self.t)*sin(i))-(self.t*2)-5, 12)
+						end
+					end
+				end,
+				update=function(self)
+					self.t+=1
+					if self.t > 20 then
+						del(one_up_particles, self)
+					end
+				end,
+				remove=function(self)
+					del(one_up_particles, self)
+				end
+			})
+		end
+	end
+end
+
+function draw_one_up_explode(xinit, yinit, rinit, direction, tinit)
+	-- TODO: remove direction
+	offset = 1.5
+	add_explode_particle(xinit, yinit, rinit, direction, tinit)
+
+end
+
 function add_new_asteroid(size_new, xinit, yinit)
 	asteroid_count+=1
 	large_asteroids = {1,3,5,7}
@@ -137,7 +179,7 @@ function add_new_asteroid(size_new, xinit, yinit)
 			if (self.vx < -2.5) self.vx = -2.5
 			if (self.vy > 2.5) self.vy = 2.5
 			if (self.vy < -2.5) self.vy = -2.5
-			if (self.vx > 0) self.vx -= .001 -- deceleration
+			if (self.vx > 0) self.vx -= .001 -- deceleration due to inertia
 			if (self.vx < 0) self.vx += .001
 			if (self.vy > 0) self.vy -= .001
 			if (self.vy < 0) self.vy += .001
@@ -156,7 +198,6 @@ function add_new_asteroid(size_new, xinit, yinit)
 				self.blow_up +=1
 			end
 			if self.blow_up > 30 then
-				-- do astroid particle animation
 				self:remove()
 			end
 			for b in all(bullets) do
@@ -181,6 +222,14 @@ function add_new_asteroid(size_new, xinit, yinit)
 		draw=function(self)
 				if (self.blow_up > 0) then
 					rect(self.rx,self.ry,self.rx-2,self.ry-2,8)
+					-- do astroid particle animation
+					if (self.blow_up == 1) draw_one_up_explode(self.rx, self.ry, self.size, 0, 0)
+					if self.blow_up > 1 then
+						for op in all(one_up_particles) do
+							op:update()
+							op:draw()
+						end
+					end
 				else
 					-- determine which asteroid to draw
 					if (self.a_rnd == 1) then
