@@ -103,7 +103,7 @@ function add_bullet()
 end
 
 function add_explode_particle(xinit, yinit, rinit, direction, tinit)
-	for ri=rinit,rinit+10,1 do
+	for ri=rinit,rinit+1,1 do
 		for i=0,1,0.025 do
 			add(one_up_particles, {
 				-- x=xinit+(((ri+tinit)*cos(i))*0.4),
@@ -113,12 +113,11 @@ function add_explode_particle(xinit, yinit, rinit, direction, tinit)
 				t=tinit,
 				d=direction,
 				draw=function(self)
-					-- TODO: fall faster
 					if (flr(rnd(2)) == 0) then
 						if (direction < 0) then
 							pset(self.x+(((ri*0.75)+self.t)*cos(i)), self.y+(((ri*0.75)+self.t)*sin(i))-(self.t)-5, 12)
 						else
-							pset(self.x+(((ri*0.5)+self.t)*cos(i)), self.y+(((ri*0.5)+self.t)*sin(i))-(self.t*2)-5, 12)
+							pset((self.x*.9)+((self.t)*(cos(i)*.5)), (self.y*.9)+((self.t)*(sin(i)*.5)), 12)
 						end
 					end
 				end,
@@ -223,7 +222,7 @@ function add_new_asteroid(size_new, xinit, yinit)
 				if (self.blow_up > 0) then
 					rect(self.rx,self.ry,self.rx-2,self.ry-2,8)
 					-- do astroid particle animation
-					if (self.blow_up == 1) draw_one_up_explode(self.rx, self.ry, self.size, 0, 0)
+					if (self.blow_up == 1) draw_one_up_explode(self.rx, self.ry, 0, 0, 6)
 					if self.blow_up > 1 then
 						for op in all(one_up_particles) do
 							op:update()
