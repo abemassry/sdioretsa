@@ -104,7 +104,7 @@ end
 
 function add_explode_particle(xinit, yinit, rinit, direction, tinit)
 	for ri=rinit,rinit+1,1 do
-		for i=0,1,0.025 do
+		for i=0,1,0.25 do
 			add(one_up_particles, {
 				-- x=xinit+(((ri+tinit)*cos(i))*0.4),
 				-- y=yinit+((((ri+tinit)*sin(i))+tinit)*0.4),
@@ -114,11 +114,7 @@ function add_explode_particle(xinit, yinit, rinit, direction, tinit)
 				d=direction,
 				draw=function(self)
 					if (flr(rnd(2)) == 0) then
-						if (direction < 0) then
-							pset(self.x+(((ri*0.75)+self.t)*cos(i)), self.y+(((ri*0.75)+self.t)*sin(i))-(self.t)-5, 12)
-						else
-							pset((self.x*.9)+((self.t)*(cos(i)*.5)), (self.y*.9)+((self.t)*(sin(i)*.5)), 12)
-						end
+						pset((self.x)+(flr(rnd(3)-1))*((self.t)*(rnd(i)*.5)), (self.y)+(flr(rnd(3)-1))*((self.t)*(rnd(i)*.5)), 7)
 					end
 				end,
 				update=function(self)
@@ -220,7 +216,6 @@ function add_new_asteroid(size_new, xinit, yinit)
 
 		draw=function(self)
 				if (self.blow_up > 0) then
-					rect(self.rx,self.ry,self.rx-2,self.ry-2,8)
 					-- do astroid particle animation
 					if (self.blow_up == 1) draw_one_up_explode(self.rx, self.ry, 0, 0, 6)
 					if self.blow_up > 1 then
