@@ -15,6 +15,8 @@ function _init()
 	bullet_count = 0
 	btn_4_hold = 25
 
+	lives = 2
+
 	-- there's only one ship so it's ok if global
 	a = 0 -- the ship's angle
 	t_a = 0 -- the ship's angle thrust activate
@@ -212,6 +214,11 @@ function add_new_asteroid(size_new, xinit, yinit)
 				end
 			end
 
+			if (self.rx+self.size > 64 and self.rx-self.size < 64 and self.ry+self.size > 64 and self.ry-self.size < 64) then 
+				lose = 1
+				lives-=1
+			end
+
 		end,
 
 		draw=function(self)
@@ -342,17 +349,21 @@ function _draw()
 	pset(63,66,6)
 	pset(65,65,6)
 	pset(65,66,6)
-	--line(64,64,62,67,6)
-	--line(64,64,66,67,6)
 
 
 	if (btn(2)) pset(64,67,6)
-	print('a:'..a, 0,0,6)
-	print('t_a:'..t_a, 0,6,6)
-	print('bc:'..bullet_count, 0, 12, 6)
-	print('sina:'..sin(a), 0,18,6)
-	print('sint_a:'..sin(t_a), 0,24,6)
-	print('vt:'..sin(vt), 0,30,6)
+	draw_lives()
+end
+
+function draw_lives()
+	for i=0,lives*4,4 do
+		pset(2+i,1,6)
+		pset(1+i,2,6)
+		pset(1+i,3,6)
+		pset(3+i,2,6)
+		pset(3+i,3,6)
+	end
+
 end
 
 function a1(x,y)
