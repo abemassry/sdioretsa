@@ -16,6 +16,7 @@ function _init()
 	btn_4_hold = 25
 
 	lives = 2
+	lose = 0
 
 	-- there's only one ship so it's ok if global
 	a = 0 -- the ship's angle
@@ -149,8 +150,6 @@ function add_new_asteroid(size_new, xinit, yinit)
 		oy=yinit,
 		rx=0, -- rotated asteroid position
 		ry=0,
-		xv = 0,
-		yv = 0,
 		vx = 0, -- rotated velocity x component
 		vy = 0, -- rotated velocity y component
 		tx = 0, -- rotated thrust x component
@@ -164,11 +163,18 @@ function add_new_asteroid(size_new, xinit, yinit)
 		init_angle = 0,
 		size=size_new,
 
+		lose_reset=function(self)
+			--self.vx = self.speedx
+			--self.vy = self.speedy
+			self.vx = 0
+			self.vy = 0
+		end,
+
 		update=function(self)
 			-- the thrust happens in the y direction but
 			-- after rotation could have an x component
 			-- it effects everything else on screen
-			if btn(2) then
+			if (btn(2) and lose == 0) then
 				self.vx = self.vx + (tvx * 0.04) -- thrust component against velocity
 				self.vy = self.vy + (tvy * 0.04) -- can be negative
 			end
@@ -214,9 +220,20 @@ function add_new_asteroid(size_new, xinit, yinit)
 				end
 			end
 
-			if (self.rx+self.size > 64 and self.rx-self.size < 64 and self.ry+self.size > 64 and self.ry-self.size < 64) then 
+			local hit_box_adjust = 1
+			if (self.size == 2) hit_box_adjust = 0
+
+			if (self.rx+(self.size-hit_box_adjust) > 64 and self.rx-(self.size-hit_box_adjust) < 64 and self.ry+(self.size-hit_box_adjust) > 64 and self.ry-(self.size-hit_box_adjust) < 64 and self.blow_up == 0 and lose == 0) then 
 				lose = 1
 				lives-=1
+				self.blow_up +=1
+				if (self.size == 8) then
+					add_new_asteroid(4, self.ox, self.oy)
+					add_new_asteroid(4, self.ox, self.oy)
+				elseif (self.size == 4) then
+					add_new_asteroid(2, self.ox, self.oy)
+					add_new_asteroid(2, self.ox, self.oy)
+				end
 			end
 
 		end,
@@ -280,19 +297,46 @@ end
 function _update60()
 	t+=1
 	if (t>60) t=0
+	if lose > 0 then
+		lose+=1
+	end
+	if (lose>90 and lives > -1) then 
+		lose=0
+		a = 0 -- the ship's angle
+		t_a = 0 -- the ship's angle thrust activate
+		pt_a = 0 -- previous thrust angle
+		t_x = 0 -- x component of ship thrust
+		t_y = 0 -- y component of ship thrust
+		tvx = 0 -- thrust x component
+		tvy = 0 -- thrust y copmonent
+		thrust = 0 -- the ship's thrust
+
+		velocity = 0 -- the ship's speed (can be added to or subtracted from by thrust)
+		vx = 0 -- ship's velocity x component
+		vy = 0 -- ship's velocity y component
+		vt = 0
+		tx = 0 -- the rotated x thrust component
+		ty = 0 -- the rotated y thrust component
+
+		for a in all(asteroids) do
+			a:lose_reset()
+		end
+
+	end
+
   -- rotate left
-	if (btn(1)) then
+	if (btn(1) and lose == 0) then
 		a += 0.008
 	end
 
   -- rotate right
-	if (btn(0)) then
+	if (btn(0) and lose == 0) then
 		a -= 0.008
 	end
 
   -- up is accelerate
 	-- first part of ship acceleration and velocity
-	if (btn(2)) then
+	if (btn(2) and lose == 0) then
 		t_a = a
 		if (velocity > 0) then
 			tvx = sin(t_a) * velocity -- thrust x component
@@ -307,7 +351,7 @@ function _update60()
 	if (velocity > 3) velocity = 3
 
 	-- if (btn(4) and bullet_count < 4 and btn_4_hold > 30) then
-	if (btn_4_press == false and btn(4) and bullet_count < 4 and btn_4_hold > 5) then
+	if (btn_4_press == false and btn(4) and bullet_count < 4 and btn_4_hold > 5 and lose == 0) then
 		btn_4_hold = 0
 		add_bullet()
 	end
@@ -344,15 +388,27 @@ function _draw()
 	for b in all(bullets) do
 		b:draw()
 	end
-	pset(64,64,6)
-	pset(63,65,6)
-	pset(63,66,6)
-	pset(65,65,6)
-	pset(65,66,6)
+	if lose == 0 then
+		pset(64,64,6)
+		pset(63,65,6)
+		pset(63,66,6)
+		pset(65,65,6)
+		pset(65,66,6)
+	elseif lose > 0 then
+		pset(64+(lose/4),64+(lose/4),7)
+		pset(63-(lose/4),65,7)
+		pset(63-(lose/4),66,7)
+		pset(65+(lose/4),65,7)
+		pset(66+(lose/4),66,7)
+	end
 
 
-	if (btn(2)) pset(64,67,6)
+	if (btn(2) and lose == 0) pset(64,67,6)
 	draw_lives()
+	if (lives == -1 and lose > 60) then
+		spr(32, 30, 64, 4, 1)
+		spr(36, 68, 64, 4, 1)
+	end
 end
 
 function draw_lives()
@@ -824,3 +880,10 @@ __gfx__
 00000000000600000000060000000060000000600060066006606000060000666600060000000000000600000006600000060000000000000000000000000000
 00000000000060000000060000000006666666000006600000060000006066000066600000000000000000000000000000000000000000000000000000000000
 00000000000006666666600000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000
+66666660000600006600066066666660666666606000006066666660666666600000000000000000000000000000000000000000000000000000000000000000
+60000060006060006060606060000000600000606000006060000000600000600000000000000000000000000000000000000000000000000000000000000000
+60000000060006006006006060000000600000600600060060000000600000600000000000000000000000000000000000000000000000000000000000000000
+60066660600000606000006066666660600000600600060066666660666666600000000000000000000000000000000000000000000000000000000000000000
+60000060666666606000006060000000600000600060600060000000600060000000000000000000000000000000000000000000000000000000000000000000
+60000060600000606000006060000000600000600060600060000000600006000000000000000000000000000000000000000000000000000000000000000000
+66666660600000606000006066666660666666600006000066666660600000600000000000000000000000000000000000000000000000000000000000000000
