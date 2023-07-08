@@ -37,6 +37,12 @@ function _init()
 
 	t = 0
 	one_up_particles={}
+	overlay_state = 0
+	-- overlay_state 0 title screen
+	-- overlay_state 1 main play
+	-- overlay_state 2 pause
+	-- overlay_state 3 end of level
+	-- overlay_state 4 transition
 end
 
 
@@ -295,129 +301,154 @@ end
 
 
 function _update60()
-	t+=1
-	if (t>60) t=0
-	if lose > 0 then
-		lose+=1
-	end
-	if (lose>90 and lives > -1) then 
-		lose=0
-		a = 0 -- the ship's angle
-		t_a = 0 -- the ship's angle thrust activate
-		pt_a = 0 -- previous thrust angle
-		t_x = 0 -- x component of ship thrust
-		t_y = 0 -- y component of ship thrust
-		tvx = 0 -- thrust x component
-		tvy = 0 -- thrust y copmonent
-		thrust = 0 -- the ship's thrust
-
-		velocity = 0 -- the ship's speed (can be added to or subtracted from by thrust)
-		vx = 0 -- ship's velocity x component
-		vy = 0 -- ship's velocity y component
-		vt = 0
-		tx = 0 -- the rotated x thrust component
-		ty = 0 -- the rotated y thrust component
-
+	if overlay_state == 0 then
+		if (reset_asteroids) then
+			reset_asteroids = false
+			for i=1,init_asteroid_count,1 do
+				add_new_asteroid(8, flr(rnd(128)), flr(rnd(128)))
+			end
+		end
 		for a in all(asteroids) do
-			a:lose_reset()
+			a:update()
+		end
+		if (btn(5)) overlay_state = 1
+
+	elseif overlay_state == 1 then
+
+		t+=1
+		if (t>60) t=0
+		if lose > 0 then
+			lose+=1
+		end
+		if (lose>90 and lives > -1) then 
+			lose=0
+			a = 0 -- the ship's angle
+			t_a = 0 -- the ship's angle thrust activate
+			pt_a = 0 -- previous thrust angle
+			t_x = 0 -- x component of ship thrust
+			t_y = 0 -- y component of ship thrust
+			tvx = 0 -- thrust x component
+			tvy = 0 -- thrust y copmonent
+			thrust = 0 -- the ship's thrust
+
+			velocity = 0 -- the ship's speed (can be added to or subtracted from by thrust)
+			vx = 0 -- ship's velocity x component
+			vy = 0 -- ship's velocity y component
+			vt = 0
+			tx = 0 -- the rotated x thrust component
+			ty = 0 -- the rotated y thrust component
+
+			for a in all(asteroids) do
+				a:lose_reset()
+			end
+
 		end
 
-	end
-
-  -- rotate left
-	if (btn(1) and lose == 0) then
-		a += 0.008
-	end
-
-  -- rotate right
-	if (btn(0) and lose == 0) then
-		a -= 0.008
-	end
-
-  -- up is accelerate
-	-- first part of ship acceleration and velocity
-	if (btn(2) and lose == 0) then
-		t_a = a
-		if (velocity > 0) then
-			tvx = sin(t_a) * velocity -- thrust x component
-			tvy = cos(t_a) * velocity -- thrust y component
+		-- rotate left
+		if (btn(1) and lose == 0) then
+			a += 0.008
 		end
-		thrust = .1
-	else
-		thrust = -.005
-	end
-	velocity += thrust
-	if (velocity < 0) velocity = 0
-	if (velocity > 3) velocity = 3
 
-	-- if (btn(4) and bullet_count < 4 and btn_4_hold > 30) then
-	if (btn_4_press == false and btn(4) and bullet_count < 4 and btn_4_hold > 5 and lose == 0) then
-		btn_4_hold = 0
-		add_bullet()
-	end
-	btn_4_hold+=1
-	if (btn(4)) then
-		btn_4_press = true
-	else
-		btn_4_press = false
-	end
-	-- if (not btn(4)) btn_4_hold = 0
-
-	if (a>1) a = 0
-	if (a<0) a = 1
-	if (reset_asteroids) then
-		reset_asteroids = false
-		for i=1,init_asteroid_count,1 do
-			add_new_asteroid(8, flr(rnd(128)), flr(rnd(128)))
+		-- rotate right
+		if (btn(0) and lose == 0) then
+			a -= 0.008
 		end
-	end
-	for a in all(asteroids) do
-		a:update()
-	end
 
-	for b in all(bullets) do
-		b:update()
+		-- up is accelerate
+		-- first part of ship acceleration and velocity
+		if (btn(2) and lose == 0) then
+			t_a = a
+			if (velocity > 0) then
+				tvx = sin(t_a) * velocity -- thrust x component
+				tvy = cos(t_a) * velocity -- thrust y component
+			end
+			thrust = .1
+		else
+			thrust = -.005
+		end
+		velocity += thrust
+		if (velocity < 0) velocity = 0
+		if (velocity > 3) velocity = 3
+
+		-- if (btn(4) and bullet_count < 4 and btn_4_hold > 30) then
+		if (btn_4_press == false and btn(4) and bullet_count < 4 and btn_4_hold > 5 and lose == 0) then
+			btn_4_hold = 0
+			add_bullet()
+		end
+		btn_4_hold+=1
+		if (btn(4)) then
+			btn_4_press = true
+		else
+			btn_4_press = false
+		end
+		-- if (not btn(4)) btn_4_hold = 0
+
+		if (a>1) a = 0
+		if (a<0) a = 1
+		if (reset_asteroids) then
+			reset_asteroids = false
+			for i=1,init_asteroid_count,1 do
+				add_new_asteroid(8, flr(rnd(128)), flr(rnd(128)))
+			end
+		end
+		for a in all(asteroids) do
+			a:update()
+		end
+
+		for b in all(bullets) do
+			b:update()
+		end
 	end
 end
 
 function _draw()
-	cls()
-	for a in all(asteroids) do
-		a:draw()
-	end
-	for b in all(bullets) do
-		b:draw()
-	end
-	if lose == 0 then
-		pset(64,64,6)
-		pset(63,65,6)
-		pset(63,66,6)
-		pset(65,65,6)
-		pset(65,66,6)
-	elseif lose > 0 then
-		pset(64+(lose/4),64+(lose/4),7)
-		pset(63-(lose/4),65,7)
-		pset(63-(lose/4),66,7)
-		pset(65+(lose/4),65,7)
-		pset(66+(lose/4),66,7)
-	end
+	if overlay_state == 0 then
+		cls()
+		for a in all(asteroids) do
+			a:draw()
+		end
+		spr(48, 30, 34, 4, 1)
+		spr(54, 70, 34, 1, 1)
+
+	elseif overlay_state == 1 then
+		cls()
+		for a in all(asteroids) do
+			a:draw()
+		end
+		for b in all(bullets) do
+			b:draw()
+		end
+		if lose == 0 then
+			pset(64,64,6)
+			pset(63,65,6)
+			pset(63,66,6)
+			pset(65,65,6)
+			pset(65,66,6)
+		elseif lose > 0 then
+			pset(64+(lose/4),64+(lose/4),7)
+			pset(63-(lose/4),65,7)
+			pset(63-(lose/4),66,7)
+			pset(65+(lose/4),65,7)
+			pset(66+(lose/4),66,7)
+		end
 
 
-	if (btn(2) and lose == 0) pset(64,67,6)
-	draw_lives()
-	if (lives == -1 and lose > 60) then
-		spr(32, 30, 64, 4, 1)
-		spr(36, 68, 64, 4, 1)
+		if (btn(2) and lose == 0) pset(64,67,6)
+		draw_lives()
+		if (lives == -1 and lose > 60) then
+			spr(32, 30, 64, 4, 1)
+			spr(36, 68, 64, 4, 1)
+		end
 	end
-end
 
-function draw_lives()
-	for i=0,lives*4,4 do
-		pset(2+i,1,6)
-		pset(1+i,2,6)
-		pset(1+i,3,6)
-		pset(3+i,2,6)
-		pset(3+i,3,6)
+	function draw_lives()
+		for i=0,lives*4,4 do
+			pset(2+i,1,6)
+			pset(1+i,2,6)
+			pset(1+i,3,6)
+			pset(3+i,2,6)
+			pset(3+i,3,6)
+		end
 	end
 
 end
@@ -880,10 +911,18 @@ __gfx__
 00000000000600000000060000000060000000600060066006606000060000666600060000000000000600000006600000060000000000000000000000000000
 00000000000060000000060000000006666666000006600000060000006066000066600000000000000000000000000000000000000000000000000000000000
 00000000000006666666600000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000
-66666660000600006600066066666660666666606000006066666660666666600000000000000000000000000000000000000000000000000000000000000000
-60000060006060006060606060000000600000606000006060000000600000600000000000000000000000000000000000000000000000000000000000000000
-60000000060006006006006060000000600000600600060060000000600000600000000000000000000000000000000000000000000000000000000000000000
-60066660600000606000006066666660600000600600060066666660666666600000000000000000000000000000000000000000000000000000000000000000
-60000060666666606000006060000000600000600060600060000000600060000000000000000000000000000000000000000000000000000000000000000000
-60000060600000606000006060000000600000600060600060000000600006000000000000000000000000000000000000000000000000000000000000000000
-66666660600000606000006066666660666666600006000066666660600000600000000000000000000000000000000000000000000000000000000000000000
+66666660000600006600066066666660666666606000006066666660666666606000000066666660000000000000000000000000000000000000000000000000
+60000060006060006060606060000000600000606000006060000000600000606000000000000060000000000000000000000000000000000000000000000000
+60000000060006006006006060000000600000600600060060000000600000606000000000000060000000000000000000000000000000000000000000000000
+60066660600000606000006066666660600000600600060066666660666666606000000066666660000000000000000000000000000000000000000000000000
+60000060666666606000006060000000600000600060600060000000600060006000000060000000000000000000000000000000000000000000000000000000
+60000060600000606000006060000000600000600060600060000000600006006000000060000000000000000000000000000000000000000000000000000000
+66666660600000606000006066666660666666600006000066666660600000606000000066666660000000000000000000000000000000000000000000000000
+00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+66666660600000606666666060000060600000006000006060000060000000000000000000000000000000000000000000000000000000000000000000000000
+60000060600000606000000060000060600000000600060006000600000000000000000000000000000000000000000000000000000000000000000000000000
+60000060600000606000000060000060600000000060600000606000000000000000000000000000000000000000000000000000000000000000000000000000
+66666660600000606666666066666660600000000006000000060000000000000000000000000000000000000000000000000000000000000000000000000000
+60000000600000600000006060000060600000000006000000606000000000000000000000000000000000000000000000000000000000000000000000000000
+60000000600000600000006060000060600000000006000006000600000000000000000000000000000000000000000000000000000000000000000000000000
+60000000666666606666666060000060666666000006000060000060000000000000000000000000000000000000000000000000000000000000000000000000
