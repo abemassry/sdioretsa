@@ -304,7 +304,7 @@ end
 function _update60()
 	if overlay_state == 0 then
 		attract_timer+=1
-		if (attract_timer > 120) attract_timer = 0
+		if (attract_timer > 60) attract_timer = 0
 		if (reset_asteroids) then
 			reset_asteroids = false
 			for i=1,init_asteroid_count,1 do
@@ -314,7 +314,14 @@ function _update60()
 		for a in all(asteroids) do
 			a:update()
 		end
-		if (btn(5)) overlay_state = 1
+		if (btn(5)) then
+			overlay_state = 1
+			for a in all(asteroids) do
+				a:remove()
+			end
+			reset_asteroids = true
+			lives = 2
+		end
 
 	elseif overlay_state == 1 then
 
@@ -345,6 +352,29 @@ function _update60()
 				a:lose_reset()
 			end
 
+		end
+		if (lose > 300 and lives == -1) then
+			lose=0
+			a = 0 -- the ship's angle
+			t_a = 0 -- the ship's angle thrust activate
+			pt_a = 0 -- previous thrust angle
+			t_x = 0 -- x component of ship thrust
+			t_y = 0 -- y component of ship thrust
+			tvx = 0 -- thrust x component
+			tvy = 0 -- thrust y copmonent
+			thrust = 0 -- the ship's thrust
+
+			velocity = 0 -- the ship's speed (can be added to or subtracted from by thrust)
+			vx = 0 -- ship's velocity x component
+			vy = 0 -- ship's velocity y component
+			vt = 0
+			tx = 0 -- the rotated x thrust component
+			ty = 0 -- the rotated y thrust component
+			overlay_state = 0
+			for a in all(asteroids) do
+				a:remove()
+			end
+			reset_asteroids = true
 		end
 
 		-- rotate left
@@ -410,11 +440,16 @@ function _draw()
 		for a in all(asteroids) do
 			a:draw()
 		end
-		if (attract_timer < 60) then
-			spr(48, 38, 34, 4, 1)
-			spr(54, 78, 34, 1, 1)
-			spr(55, 38, 44, 1, 1)
-			spr(36, 46, 44, 1, 1)
+		if (attract_timer < 30) then
+			spr(48, 38, 34, 4, 1) -- PUSH
+			spr(54, 74, 34, 1, 1) -- X
+			spr(55, 30, 44, 1, 1) -- T
+			spr(36, 38, 44, 1, 1) -- O
+			spr(50, 52, 44, 1, 1) -- S
+			spr(55, 60, 44, 1, 1) -- T
+			spr(33, 68, 44, 1, 1) -- A
+			spr(39, 76, 44, 1, 1) -- R
+			spr(55, 84, 44, 1, 1) -- T
 		end
 
 	elseif overlay_state == 1 then
