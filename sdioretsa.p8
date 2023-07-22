@@ -17,7 +17,149 @@ function _init()
 
 	lives = 2
 	lose = 0
-	score = 0
+	score_ones = 0
+	score_tens = 0
+	score_hundreds = 0
+	score_thousands = 0
+	score_tenthousands = 0
+	score_hundredthousands = 0
+	score_millions = 0
+	score_tenmillions = 0
+	score_hundredmillions = 0
+	score_billions = 0
+
+	highscores = {
+		{
+			name = "dude",
+			score_ones = 1,
+			score_tens = 0,
+			score_hundreds = 0,
+			score_thousands = 0,
+			score_tenthousands = 0,
+			score_hundredthousands = 0,
+			score_millions = 0,
+			score_tenmillions = 0,
+			score_hundredmillions = 0,
+			score_billions = 0
+		},
+		{
+			name = "",
+			score_ones = 0,
+			score_tens = 0,
+			score_hundreds = 0,
+			score_thousands = 0,
+			score_tenthousands = 0,
+			score_hundredthousands = 0,
+			score_millions = 0,
+			score_tenmillions = 0,
+			score_hundredmillions = 0,
+			score_billions = 0
+		},
+		{
+			name = "",
+			score_ones = 0,
+			score_tens = 0,
+			score_hundreds = 0,
+			score_thousands = 0,
+			score_tenthousands = 0,
+			score_hundredthousands = 0,
+			score_millions = 0,
+			score_tenmillions = 0,
+			score_hundredmillions = 0,
+			score_billions = 0
+		},
+		{
+			name = "",
+			score_ones = 0,
+			score_tens = 0,
+			score_hundreds = 0,
+			score_thousands = 0,
+			score_tenthousands = 0,
+			score_hundredthousands = 0,
+			score_millions = 0,
+			score_tenmillions = 0,
+			score_hundredmillions = 0,
+			score_billions = 0
+		},
+		{
+			name = "",
+			score_ones = 0,
+			score_tens = 0,
+			score_hundreds = 0,
+			score_thousands = 0,
+			score_tenthousands = 0,
+			score_hundredthousands = 0,
+			score_millions = 0,
+			score_tenmillions = 0,
+			score_hundredmillions = 0,
+			score_billions = 0
+		},
+		{
+			name = "",
+			score_ones = 0,
+			score_tens = 0,
+			score_hundreds = 0,
+			score_thousands = 0,
+			score_tenthousands = 0,
+			score_hundredthousands = 0,
+			score_millions = 0,
+			score_tenmillions = 0,
+			score_hundredmillions = 0,
+			score_billions = 0
+		},
+		{
+			name = "",
+			score_ones = 0,
+			score_tens = 0,
+			score_hundreds = 0,
+			score_thousands = 0,
+			score_tenthousands = 0,
+			score_hundredthousands = 0,
+			score_millions = 0,
+			score_tenmillions = 0,
+			score_hundredmillions = 0,
+			score_billions = 0
+		},
+		{
+			name = "",
+			score_ones = 0,
+			score_tens = 0,
+			score_hundreds = 0,
+			score_thousands = 0,
+			score_tenthousands = 0,
+			score_hundredthousands = 0,
+			score_millions = 0,
+			score_tenmillions = 0,
+			score_hundredmillions = 0,
+			score_billions = 0
+		},
+		{
+			name = "",
+			score_ones = 0,
+			score_tens = 0,
+			score_hundreds = 0,
+			score_thousands = 0,
+			score_tenthousands = 0,
+			score_hundredthousands = 0,
+			score_millions = 0,
+			score_tenmillions = 0,
+			score_hundredmillions = 0,
+			score_billions = 0
+		},
+		{
+			name = "",
+			score_ones = 0,
+			score_tens = 0,
+			score_hundreds = 0,
+			score_thousands = 0,
+			score_tenthousands = 0,
+			score_hundredthousands = 0,
+			score_millions = 0,
+			score_tenmillions = 0,
+			score_hundredmillions = 0,
+			score_billions = 0
+		},
+	}
 
 	-- there's only one ship so it's ok if global
 	a = 0 -- the ship's angle
@@ -221,10 +363,15 @@ function add_new_asteroid(size_new, xinit, yinit)
 					if (self.size == 8) then
 						add_new_asteroid(4, self.ox, self.oy)
 						add_new_asteroid(4, self.ox, self.oy)
+						score_tens += 2
 					elseif (self.size == 4) then
 						add_new_asteroid(2, self.ox, self.oy)
 						add_new_asteroid(2, self.ox, self.oy)
+						score_tens += 5
+					else
+						score_hundreds += 1
 					end
+					calc_score()
 				end
 			end
 
@@ -238,10 +385,15 @@ function add_new_asteroid(size_new, xinit, yinit)
 				if (self.size == 8) then
 					add_new_asteroid(4, self.ox, self.oy)
 					add_new_asteroid(4, self.ox, self.oy)
+					score_tens += 2
 				elseif (self.size == 4) then
 					add_new_asteroid(2, self.ox, self.oy)
 					add_new_asteroid(2, self.ox, self.oy)
+					score_tens += 5
+				else
+					score_hundreds += 1
 				end
+				calc_score()
 			end
 
 		end,
@@ -355,6 +507,7 @@ function _update60()
 
 		end
 		if (lose > 300 and lives == -1) then
+			calc_highscore()
 			lose=0
 			a = 0 -- the ship's angle
 			t_a = 0 -- the ship's angle thrust activate
@@ -432,6 +585,8 @@ function _update60()
 		for b in all(bullets) do
 			b:update()
 		end
+	elseif overlay_state == 2 then
+		-- do highscore select
 	end
 end
 
@@ -479,6 +634,7 @@ function _draw()
 		if (btn(2) and lose == 0) pset(64,67,6)
 		draw_lives()
 		if (lives == -1 and lose > 60) then
+			-- game over
 			spr(32, 30, 64, 4, 1)
 			spr(36, 68, 64, 4, 1)
 		end
@@ -487,32 +643,156 @@ function _draw()
 end
 
 function draw_lives()
-  for i=0,lives*4,4 do
-    pset(2+i,1,6)
-    pset(1+i,2,6)
-    pset(1+i,3,6)
-    pset(3+i,2,6)
-    pset(3+i,3,6)
-  end
+	for i=0,lives*4,4 do
+		pset(2+i,1+6,6)
+		pset(1+i,2+6,6)
+		pset(1+i,3+6,6)
+		pset(3+i,2+6,6)
+		pset(3+i,3+6,6)
+	end
 end
 
 function draw_score()
-	-- spr(80, 0, 6, 1, 1) -- 0
-	-- spr(81, 6, 6, 1, 1) -- 1
-	-- spr(82, 12, 6, 1, 1) -- 2
-	-- spr(83, 18, 6, 1, 1) -- 3
-	-- spr(84, 24, 6, 1, 1) -- 4
-	-- spr(85, 30, 6, 1, 1) -- 5
-	-- spr(86, 36, 6, 1, 1) -- 6
-	-- spr(87, 42, 6, 1, 1) -- 7
-	-- spr(88, 48, 6, 1, 1) -- 8
-	-- spr(89, 54, 6, 1, 1) -- 9
-	score = 10
-	if (score % 10 == 0) then
-		spr(80, 6, 6, 1, 1) -- 0
+	-- spr(80, 0, 0, 1, 1) -- 0
+	-- spr(81, 6, 0, 1, 1) -- 1
+	-- spr(82, 12, 0, 1, 1) -- 2
+	-- spr(83, 18, 0, 1, 1) -- 3
+	-- spr(84, 24, 0, 1, 1) -- 4
+	-- spr(85, 30, 0, 1, 1) -- 5
+	-- spr(86, 36, 0, 1, 1) -- 6
+	-- spr(87, 42, 0, 1, 1) -- 7
+	-- spr(88, 48, 0, 1, 1) -- 8
+	-- spr(89, 54, 0, 1, 1) -- 9
+	if (score_billions > 0) then
+		spr(score_billions+80, 0, 0, 1, 1) 
+		spr(score_hundredmillions+80, 6, 0, 1, 1) 
+		spr(score_tenmillions+80, 12, 0, 1, 1) 
+		spr(score_millions+80, 18, 0, 1, 1) 
+		spr(score_hundredthousands+80, 24, 0, 1, 1) 
+		spr(score_tenthousands+80, 30, 0, 1, 1) 
+		spr(score_thousands+80, 36, 0, 1, 1) 
+		spr(score_hundreds+80, 42, 0, 1, 1) 
+		spr(score_tens+80, 48, 0, 1, 1) 
+		spr(score_ones+80, 54, 0, 1, 1) 
+	elseif (score_hundredmillions > 0) then
+		spr(score_hundredmillions+80, 0, 0, 1, 1) 
+		spr(score_tenmillions+80, 6, 0, 1, 1) 
+		spr(score_millions+80, 12, 0, 1, 1) 
+		spr(score_hundredthousands+80, 18, 0, 1, 1) 
+		spr(score_tenthousands+80, 24, 0, 1, 1) 
+		spr(score_thousands+80, 30, 0, 1, 1) 
+		spr(score_hundreds+80, 36, 0, 1, 1) 
+		spr(score_tens+80, 42, 0, 1, 1) 
+		spr(score_ones+80, 48, 0, 1, 1) 
+		
+	elseif (score_tenmillions > 0) then
+		-- ten mil
+		spr(score_tenmillions+80, 0, 0, 1, 1) 
+		spr(score_millions+80, 6, 0, 1, 1) 
+		spr(score_hundredthousands+80, 12, 0, 1, 1) 
+		spr(score_tenthousands+80, 18, 0, 1, 1) 
+		spr(score_thousands+80, 24, 0, 1, 1) 
+		spr(score_hundreds+80, 30, 0, 1, 1) 
+		spr(score_tens+80, 36, 0, 1, 1) 
+		spr(score_ones+80, 42, 0, 1, 1) 
+	elseif (score_millions > 0) then
+		-- mil
+		spr(score_millions+80, 0, 0, 1, 1) 
+		spr(score_hundredthousands+80, 6, 0, 1, 1) 
+		spr(score_tenthousands+80, 12, 0, 1, 1) 
+		spr(score_thousands+80, 18, 0, 1, 1) 
+		spr(score_hundreds+80, 24, 0, 1, 1) 
+		spr(score_tens+80, 30, 0, 1, 1) 
+		spr(score_ones+80, 36, 0, 1, 1) 
+	elseif (score_hundredthousands > 0) then
+		-- hundred thou
+		spr(score_hundredthousands+80, 0, 0, 1, 1) 
+		spr(score_tenthousands+80, 6, 0, 1, 1) 
+		spr(score_thousands+80, 12, 0, 1, 1) 
+		spr(score_hundreds+80, 18, 0, 1, 1) 
+		spr(score_tens+80, 24, 0, 1, 1) 
+		spr(score_ones+80, 30, 0, 1, 1) 
+	elseif (score_tenthousands > 0) then
+		-- ten thou
+		spr(score_tenthousands+80, 0, 0, 1, 1) 
+		spr(score_thousands+80, 6, 0, 1, 1) 
+		spr(score_hundreds+80, 12, 0, 1, 1) 
+		spr(score_tens+80, 18, 0, 1, 1) 
+		spr(score_ones+80, 24, 0, 1, 1) 
+	elseif (score_thousands > 0) then
+		-- thousand
+		spr(score_thousands+80, 0, 0, 1, 1) 
+		spr(score_hundreds+80, 6, 0, 1, 1) 
+		spr(score_tens+80, 12, 0, 1, 1) 
+		spr(score_ones+80, 18, 0, 1, 1) 
+	elseif (score_hundreds > 0) then
+		-- hundred
+		spr(score_hundreds+80, 0, 0, 1, 1) 
+		spr(score_tens+80, 6, 0, 1, 1) 
+		spr(score_ones+80, 12, 0, 1, 1) 
+	elseif (score_tens > 0) then
+		-- ten
+		spr(score_tens+80, 0, 0, 1, 1) 
+		spr(score_ones+80, 6, 0, 1, 1) 
+	else
+		-- one
+		spr(score_tens+80, 0, 0, 1, 1) 
+		spr(score_ones+80, 0, 0, 1, 1) 
 	end
+end
 
+function calc_score()
+	if score_ones == 10 then
+		score_tens += 1
+		score_ones = 0
+	end
+	if score_tens >= 10 then
+		local ten_remainder = score_tens % 10
+		score_hundreds += 1
+		score_tens = 0 + ten_remainder
+	end
+	if score_hundreds >= 10 then
+		local hundred_remainder = score_hundreds % 10
+		score_thousands += 1
+		score_hundreds = 0 + hundred_remainder
+	end
+	if score_thousands == 10 then
+		local thousand_remainder = score_thousands % 10
+		score_tenthousands += 1
+		score_thousands = 0 + thousand_remainder
+	end
+	if score_tenthousands == 10 then
+		local tenthousand_remainder = score_tenthousands % 10
+		score_hundredthousands += 1
+		score_tenthousands = 0 + tenthousand_remainder
+	end
+	if score_hundredthousands == 10 then
+		local hundredthousand_remainder = score_hundredthousands % 10
+		score_millions += 1
+		score_hundredthousands = 0 + hundredthousand_remainder
+	end
+	if score_millions == 10 then
+		local million_remainder = score_millions % 10
+		score_tenmillions += 1
+		score_millions = 0 + million_remainder
+	end
+	if score_tenmillions == 10 then
+		local tenmillion_remainder = score_tenmillions % 10
+		score_hundredmillions += 1
+		score_tenmillions = 0 + tenmillion_remainder
+	end
+	if score_hundredmillions == 10 then
+		score_billions += 1
+		score_hundredmillions = 0
+	end
+end
 
+function calc_highscore()
+	for i=1,10,1 do
+		if (highscores[i].name == "") then
+			print(i)
+		end
+	end
 end
 
 function a1(x,y)
