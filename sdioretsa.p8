@@ -1,8 +1,6 @@
 pico-8 cartridge // http://www.pico-8.com
 version 38
 __lua__
-
-
 overlay_state = 0
 
 function _init()
@@ -28,138 +26,17 @@ function _init()
 	score_hundredmillions = 0
 	score_billions = 0
 
-	highscores = {
-		{
-			name = "dude",
-			score_ones = 1,
-			score_tens = 0,
-			score_hundreds = 0,
-			score_thousands = 0,
-			score_tenthousands = 0,
-			score_hundredthousands = 0,
-			score_millions = 0,
-			score_tenmillions = 0,
-			score_hundredmillions = 0,
-			score_billions = 0
-		},
-		{
-			name = "",
-			score_ones = 0,
-			score_tens = 0,
-			score_hundreds = 0,
-			score_thousands = 0,
-			score_tenthousands = 0,
-			score_hundredthousands = 0,
-			score_millions = 0,
-			score_tenmillions = 0,
-			score_hundredmillions = 0,
-			score_billions = 0
-		},
-		{
-			name = "",
-			score_ones = 0,
-			score_tens = 0,
-			score_hundreds = 0,
-			score_thousands = 0,
-			score_tenthousands = 0,
-			score_hundredthousands = 0,
-			score_millions = 0,
-			score_tenmillions = 0,
-			score_hundredmillions = 0,
-			score_billions = 0
-		},
-		{
-			name = "",
-			score_ones = 0,
-			score_tens = 0,
-			score_hundreds = 0,
-			score_thousands = 0,
-			score_tenthousands = 0,
-			score_hundredthousands = 0,
-			score_millions = 0,
-			score_tenmillions = 0,
-			score_hundredmillions = 0,
-			score_billions = 0
-		},
-		{
-			name = "",
-			score_ones = 0,
-			score_tens = 0,
-			score_hundreds = 0,
-			score_thousands = 0,
-			score_tenthousands = 0,
-			score_hundredthousands = 0,
-			score_millions = 0,
-			score_tenmillions = 0,
-			score_hundredmillions = 0,
-			score_billions = 0
-		},
-		{
-			name = "",
-			score_ones = 0,
-			score_tens = 0,
-			score_hundreds = 0,
-			score_thousands = 0,
-			score_tenthousands = 0,
-			score_hundredthousands = 0,
-			score_millions = 0,
-			score_tenmillions = 0,
-			score_hundredmillions = 0,
-			score_billions = 0
-		},
-		{
-			name = "",
-			score_ones = 0,
-			score_tens = 0,
-			score_hundreds = 0,
-			score_thousands = 0,
-			score_tenthousands = 0,
-			score_hundredthousands = 0,
-			score_millions = 0,
-			score_tenmillions = 0,
-			score_hundredmillions = 0,
-			score_billions = 0
-		},
-		{
-			name = "",
-			score_ones = 0,
-			score_tens = 0,
-			score_hundreds = 0,
-			score_thousands = 0,
-			score_tenthousands = 0,
-			score_hundredthousands = 0,
-			score_millions = 0,
-			score_tenmillions = 0,
-			score_hundredmillions = 0,
-			score_billions = 0
-		},
-		{
-			name = "",
-			score_ones = 0,
-			score_tens = 0,
-			score_hundreds = 0,
-			score_thousands = 0,
-			score_tenthousands = 0,
-			score_hundredthousands = 0,
-			score_millions = 0,
-			score_tenmillions = 0,
-			score_hundredmillions = 0,
-			score_billions = 0
-		},
-		{
-			name = "",
-			score_ones = 0,
-			score_tens = 0,
-			score_hundreds = 0,
-			score_thousands = 0,
-			score_tenthousands = 0,
-			score_hundredthousands = 0,
-			score_millions = 0,
-			score_tenmillions = 0,
-			score_hundredmillions = 0,
-			score_billions = 0
-		},
-	}
+	new_high_score = false
+	high_score_ones = 0
+	high_score_tens = 0
+	high_score_hundreds = 0
+	high_score_thousands = 0
+	high_score_tenthousands = 0
+	high_score_hundredthousands = 0
+	high_score_millions = 0
+	high_score_tenmillions = 0
+	high_score_hundredmillions = 0
+	high_score_billions = 0
 
 	-- there's only one ship so it's ok if global
 	a = 0 -- the ship's angle
@@ -448,6 +325,7 @@ function add_new_asteroid(size_new, xinit, yinit)
 
 		remove=function(self)
 			del(asteroids, self)
+			asteroid_count-=1
 		end
 	})
 
@@ -585,6 +463,7 @@ function _update60()
 		for b in all(bullets) do
 			b:update()
 		end
+		if (asteroid_count == 0) reset_asteroids = true
 	elseif overlay_state == 2 then
 		-- do highscore select
 	end
@@ -597,6 +476,7 @@ function _draw()
 			a:draw()
 		end
 		if (attract_timer < 30) then
+			new_high_score = false
 			spr(48, 38, 34, 4, 1) -- PUSH
 			spr(54, 74, 34, 1, 1) -- X
 			spr(55, 30, 44, 1, 1) -- T
@@ -607,6 +487,8 @@ function _draw()
 			spr(39, 76, 44, 1, 1) -- R
 			spr(55, 84, 44, 1, 1) -- T
 		end
+	draw_score()
+	draw_high_score()
 
 	elseif overlay_state == 1 then
 		cls()
@@ -637,8 +519,37 @@ function _draw()
 			-- game over
 			spr(32, 30, 64, 4, 1)
 			spr(36, 68, 64, 4, 1)
+			calc_highscore()
+			if new_high_score then
+				spr(40, 10, 76, 1, 1) -- N
+				spr(38, 18, 76, 1, 1) -- E
+				spr(41, 26, 76, 1, 1) -- W
+				spr(51, 38, 76, 1, 1) -- H
+				spr(42, 38+8, 76, 1, 1) -- I
+				spr(32, 38+16, 76, 1, 1) -- G
+				spr(51, 38+24, 76, 1, 1) -- H
+				spr(50, 38+24+16, 76, 1, 1) -- S
+				spr(43, 38+24+16+8, 76, 1, 1) -- C
+				spr(36, 38+24+16+16, 76, 1, 1) -- O
+				spr(39, 38+24+16+24, 76, 1, 1) -- R
+				spr(38, 38+24+16+32, 76, 1, 1) -- E
+			end
+
+
+
+			score_ones = 0
+			score_tens = 0
+			score_hundreds = 0
+			score_thousands = 0
+			score_tenthousands = 0
+			score_hundredthousands = 0
+			score_millions = 0
+			score_tenmillions = 0
+			score_hundredmillions = 0
+			score_billions = 0
 		end
 		draw_score()
+		draw_high_score()
 	end
 end
 
@@ -737,7 +648,95 @@ function draw_score()
 	else
 		-- one
 		spr(score_tens+80, 0, 0, 1, 1) 
-		spr(score_ones+80, 0, 0, 1, 1) 
+		spr(score_ones+80, 6, 0, 1, 1) 
+	end
+end
+function draw_high_score()
+	-- spr(80, 0, 0, 1, 1) -- 0
+	-- spr(81, 6, 0, 1, 1) -- 1
+	-- spr(82, 12, 0, 1, 1) -- 2
+	-- spr(83, 18, 0, 1, 1) -- 3
+	-- spr(84, 24, 0, 1, 1) -- 4
+	-- spr(85, 30, 0, 1, 1) -- 5
+	-- spr(86, 36, 0, 1, 1) -- 6
+	-- spr(87, 42, 0, 1, 1) -- 7
+	-- spr(88, 48, 0, 1, 1) -- 8
+	-- spr(89, 54, 0, 1, 1) -- 9
+	if (high_score_billions > 0) then
+		spr(high_score_billions+80, 122-54, 0, 1, 1) 
+		spr(high_score_hundredmillions+80, 122-48, 0, 1, 1) 
+		spr(high_score_tenmillions+80, 122-42, 0, 1, 1) 
+		spr(high_score_millions+80, 122-36, 0, 1, 1) 
+		spr(high_score_hundredthousands+80, 122-30, 0, 1, 1) 
+		spr(high_score_tenthousands+80, 122-24, 0, 1, 1) 
+		spr(high_score_thousands+80, 122-18, 0, 1, 1) 
+		spr(high_score_hundreds+80, 122-12, 0, 1, 1) 
+		spr(high_score_tens+80, 122-6, 0, 1, 1)
+		spr(high_score_ones+80, 122, 0, 1, 1) 
+	elseif (high_score_hundredmillions > 0) then
+		spr(high_score_hundredmillions+80, 122-48, 0, 1, 1) 
+		spr(high_score_tenmillions+80, 122-42, 0, 1, 1) 
+		spr(high_score_millions+80, 122-36, 0, 1, 1) 
+		spr(high_score_hundredthousands+80, 122-30, 0, 1, 1) 
+		spr(high_score_tenthousands+80, 122-24, 0, 1, 1) 
+		spr(high_score_thousands+80, 122-18, 0, 1, 1) 
+		spr(high_score_hundreds+80, 122-12, 0, 1, 1) 
+		spr(high_score_tens+80, 122-6, 0, 1, 1)
+		spr(high_score_ones+80, 122, 0, 1, 1) 
+		
+	elseif (high_score_tenmillions > 0) then
+		-- ten mil
+		spr(high_score_tenmillions+80, 122-42, 0, 1, 1) 
+		spr(high_score_millions+80, 122-36, 0, 1, 1) 
+		spr(high_score_hundredthousands+80, 122-30, 0, 1, 1) 
+		spr(high_score_tenthousands+80, 122-24, 0, 1, 1) 
+		spr(high_score_thousands+80, 122-18, 0, 1, 1) 
+		spr(high_score_hundreds+80, 122-12, 0, 1, 1) 
+		spr(high_score_tens+80, 122-6, 0, 1, 1)
+		spr(high_score_ones+80, 122, 0, 1, 1) 
+	elseif (high_score_millions > 0) then
+		-- mil
+		spr(high_score_millions+80, 122-36, 0, 1, 1) 
+		spr(high_score_hundredthousands+80, 122-30, 0, 1, 1) 
+		spr(high_score_tenthousands+80, 122-24, 0, 1, 1) 
+		spr(high_score_thousands+80, 122-18, 0, 1, 1) 
+		spr(high_score_hundreds+80, 122-12, 0, 1, 1) 
+		spr(high_score_tens+80, 122-6, 0, 1, 1)
+		spr(high_score_ones+80, 122, 0, 1, 1) 
+	elseif (high_score_hundredthousands > 0) then
+		-- hundred thou
+		spr(high_score_hundredthousands+80, 122-30, 0, 1, 1) 
+		spr(high_score_tenthousands+80, 122-24, 0, 1, 1) 
+		spr(high_score_thousands+80, 122-18, 0, 1, 1) 
+		spr(high_score_hundreds+80, 122-12, 0, 1, 1) 
+		spr(high_score_tens+80, 122-6, 0, 1, 1)
+		spr(high_score_ones+80, 122, 0, 1, 1) 
+	elseif (high_score_tenthousands > 0) then
+		-- ten thou
+		spr(high_score_tenthousands+80, 122-24, 0, 1, 1) 
+		spr(high_score_thousands+80, 122-18, 0, 1, 1) 
+		spr(high_score_hundreds+80, 122-12, 0, 1, 1) 
+		spr(high_score_tens+80, 122-6, 0, 1, 1)
+		spr(high_score_ones+80, 122, 0, 1, 1) 
+	elseif (high_score_thousands > 0) then
+		-- thousand
+		spr(high_score_thousands+80, 122-18, 0, 1, 1) 
+		spr(high_score_hundreds+80, 122-12, 0, 1, 1) 
+		spr(high_score_tens+80, 122-6, 0, 1, 1)
+		spr(high_score_ones+80, 122, 0, 1, 1) 
+	elseif (high_score_hundreds > 0) then
+		-- hundred
+		spr(high_score_hundreds+80, 122-12, 0, 1, 1) 
+		spr(high_score_tens+80, 122-6, 0, 1, 1)
+		spr(high_score_ones+80, 122, 0, 1, 1) 
+	elseif (high_score_tens > 0) then
+		-- ten
+		spr(high_score_tens+80, 122-6, 0, 1, 1)
+		spr(high_score_ones+80, 122, 0, 1, 1) 
+	else
+		-- one
+		spr(high_score_tens+80, 122-6, 0, 1, 1)
+		spr(high_score_ones+80, 122, 0, 1, 1) 
 	end
 end
 
@@ -788,12 +787,89 @@ function calc_score()
 end
 
 function calc_highscore()
-	for i=1,10,1 do
-		if (highscores[i].name == "") then
-			print(i)
-		end
-	end
+	local prev_str_highscore = ""..high_score_billions..high_score_hundredmillions..high_score_tenmillions..high_score_millions..high_score_hundredthousands..high_score_tenthousands..high_score_thousands..high_score_hundreds..high_score_tens..high_score_ones
+	if (comp_nhs()) newer_high_score()
+	local new_str_highscore = ""..high_score_billions..high_score_hundredmillions..high_score_tenmillions..high_score_millions..high_score_hundredthousands..high_score_tenthousands..high_score_thousands..high_score_hundreds..high_score_tens..high_score_ones
+	if (new_str_highscore != prev_str_highscore) new_high_score = true
 end
+
+function comp_nhs()
+	if score_billions > high_score_billions then
+		return true
+	elseif score_billions < high_score_billions then
+		return false
+	end
+
+	if score_hundredmillions > high_score_hundredmillions then
+		return true
+	elseif score_hundredmillions < high_score_hundredmillions then
+		return false
+	end
+
+	if score_tenmillions > high_score_tenmillions then
+		return true 
+	elseif score_tenmillions < high_score_tenmillions then
+		return false
+	end
+
+	if score_millions > high_score_millions then
+		return true
+	elseif score_millions < high_score_millions then
+		return false
+	end
+
+	if score_hundredthousands > high_score_hundredthousands then
+		return true
+	elseif score_hundredthousands < high_score_hundredthousands then
+		return false
+	end
+
+	if score_tenthousands > high_score_tenthousands then
+		return true
+	elseif score_tenthousands < high_score_tenthousands then
+		return false
+	end
+
+	if score_thousands > high_score_thousands then
+		return true
+	elseif score_thousands < high_score_thousands then
+		return false
+	end
+
+	if score_hundreds > high_score_hundreds then
+		return true
+	elseif score_hundreds < high_score_hundreds then
+		return false
+	end
+
+	if score_tens > high_score_tens then
+		return true
+	elseif score_tens < high_score_tens then
+		return false
+	end
+
+	if score_ones > high_score_ones then
+		return true 
+	elseif score_ones < high_score_ones then
+		return false
+	end
+
+	return false
+end
+
+function newer_high_score()
+	 high_score_billions = score_billions
+	 high_score_ones = score_ones
+	 high_score_tens = score_tens
+	 high_score_hundreds = score_hundreds
+	 high_score_thousands = score_thousands
+	 high_score_tenthousands = score_tenthousands
+	 high_score_hundredthousands = score_hundredthousands
+	 high_score_millions = score_millions
+	 high_score_tenmillions = score_tenmillions
+	 high_score_hundredmillions = score_hundredmillions
+end
+
 
 function a1(x,y)
 	local rx = 0
@@ -1253,13 +1329,13 @@ __gfx__
 00000000000600000000060000000060000000600060066006606000060000666600060000000000000600000006600000060000000000000000000000000000
 00000000000060000000060000000006666666000006600000060000006066000066600000000000000000000000000000000000000000000000000000000000
 00000000000006666666600000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000
-66666660000600006600066066666660666666606000006066666660666666600000000000000000000000000000000000000000000000000000000000000000
-60000060006060006060606060000000600000606000006060000000600000600000000000000000000000000000000000000000000000000000000000000000
-60000000060006006006006060000000600000600600060060000000600000600000000000000000000000000000000000000000000000000000000000000000
-60066660600000606000006066666660600000600600060066666660666666600000000000000000000000000000000000000000000000000000000000000000
-60000060666666606000006060000000600000600060600060000000600060000000000000000000000000000000000000000000000000000000000000000000
-60000060600000606000006060000000600000600060600060000000600006000000000000000000000000000000000000000000000000000000000000000000
-66666660600000606000006066666660666666600006000066666660600000600000000000000000000000000000000000000000000000000000000000000000
+66666660000600006600066066666660666666606000006066666660666666606000006060000060666666606666666000000000000000000000000000000000
+60000060006060006060606060000000600000606000006060000000600000606600006060000060000600006000000000000000000000000000000000000000
+60000000060006006006006060000000600000600600060060000000600000606060006066060660000600006000000000000000000000000000000000000000
+60066660600000606000006066666660600000600600060066666660666666606006006006060600000600006000000000000000000000000000000000000000
+60000060666666606000006060000000600000600060600060000000600060006000606006666600000600006000000000000000000000000000000000000000
+60000060600000606000006060000000600000600060600060000000600006006000066000606000000600006000000000000000000000000000000000000000
+66666660600000606000006066666660666666600006000066666660600000606000006000606000666666606666666000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 66666660600000606666666060000060600000006000006060000060666666600000000000000000000000000000000000000000000000000000000000000000
 60000060600000606000000060000060600000000600060006000600000600000000000000000000000000000000000000000000000000000000000000000000
