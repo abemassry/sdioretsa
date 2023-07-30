@@ -453,7 +453,13 @@ function _update60()
 		if (reset_asteroids) then
 			reset_asteroids = false
 			for i=1,init_asteroid_count,1 do
-				add_new_asteroid(8, flr(rnd(128)), flr(rnd(128)))
+				local xinit = flr(rnd(128))
+				local yinit = flr(rnd(128))
+				while (xinit <= 64+8 and xinit >= 64-8 and yinit <= 64+8 and yinit >= 64-8) do
+					xinit = flr(rnd(128))
+					yinit = flr(rnd(128))
+				end
+				add_new_asteroid(8, xinit, yinit)
 			end
 		end
 		for a in all(asteroids) do
@@ -758,6 +764,8 @@ function calc_score()
 	if score_thousands == 10 then
 		local thousand_remainder = score_thousands % 10
 		score_tenthousands += 1
+		-- every 10000 points you get an extra life
+		lives+=1
 		score_thousands = 0 + thousand_remainder
 	end
 	if score_tenthousands == 10 then
@@ -787,10 +795,10 @@ function calc_score()
 end
 
 function calc_highscore()
-	local prev_str_highscore = ""..high_score_billions..high_score_hundredmillions..high_score_tenmillions..high_score_millions..high_score_hundredthousands..high_score_tenthousands..high_score_thousands..high_score_hundreds..high_score_tens..high_score_ones
-	if (comp_nhs()) newer_high_score()
-	local new_str_highscore = ""..high_score_billions..high_score_hundredmillions..high_score_tenmillions..high_score_millions..high_score_hundredthousands..high_score_tenthousands..high_score_thousands..high_score_hundreds..high_score_tens..high_score_ones
-	if (new_str_highscore != prev_str_highscore) new_high_score = true
+	if (comp_nhs()) then 
+		newer_high_score()
+		new_high_score = true
+	end
 end
 
 function comp_nhs()
