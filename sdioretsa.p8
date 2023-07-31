@@ -6,6 +6,8 @@ overlay_state = 0
 function _init()
 	asteroids={}
 	bullets={}
+	ufos={}
+	ufo_count = 0
 	init_asteroid_count = 4 -- initial value
 	reset_asteroids = true
 	btn_4_press = false
@@ -255,6 +257,7 @@ function add_new_asteroid(size_new, xinit, yinit)
 			local hit_box_adjust = 1
 			if (self.size == 2) hit_box_adjust = 0
 
+			-- check for collision with player's ship
 			if (self.rx+(self.size-hit_box_adjust) > 64 and self.rx-(self.size-hit_box_adjust) < 64 and self.ry+(self.size-hit_box_adjust) > 64 and self.ry-(self.size-hit_box_adjust) < 64 and self.blow_up == 0 and lose == 0 and overlay_state == 1) then 
 				lose = 1
 				lives-=1
@@ -326,6 +329,126 @@ function add_new_asteroid(size_new, xinit, yinit)
 		remove=function(self)
 			del(asteroids, self)
 			asteroid_count-=1
+		end
+	})
+
+end
+
+function add_ufo(size, xinit, yinit)
+	add(ufos, {
+		ox=xinit, -- original ufo position
+		oy=yinit,
+		rx=0, -- rotated ufo position
+		ry=0,
+		vx = 0, -- rotated velocity x component
+		vy = 0, -- rotated velocity y component
+		tx = 0, -- rotated thrust x component
+		ty = 0, -- rotated thrust y component
+		tdirection = -1,
+		blow_up = 0,
+		speedx = (rnd(0.75)*(8/size)-0.25),
+		speedy = (rnd(0.75)*(8/size)-0.25),
+		size_accel = 0.33,
+		a_rnd=rnd({1,2,3,4}),
+		init_angle = 0,
+		size=size,
+
+		lose_reset=function(self)
+			--self.vx = self.speedx
+			--self.vy = self.speedy
+			self.vx = 0
+			self.vy = 0
+		end,
+
+		update=function(self)
+			-- the thrust happens in the y direction but
+			-- after rotation could have an x component
+			-- it effects everything else on screen
+			if (btn(2) and lose == 0) then
+				self.vx = self.vx + (tvx * 0.04) -- thrust component against velocity
+				self.vy = self.vy + (tvy * 0.04) -- can be negative
+			end
+			if (self.vx > 2.5) self.vx = 2.5 -- speed limits
+			if (self.vx < -2.5) self.vx = -2.5
+			if (self.vy > 2.5) self.vy = 2.5
+			if (self.vy < -2.5) self.vy = -2.5
+			if (self.vx > 0) self.vx -= .001 -- deceleration due to inertia
+			if (self.vx < 0) self.vx += .001
+			if (self.vy > 0) self.vy -= .001
+			if (self.vy < 0) self.vy += .001
+
+			self.ox+=((self.size_accel*self.speedx) + self.vx) -- update non rotated x
+			self.oy+=((self.size_accel*self.speedy) + self.vy) -- update non rotated y
+
+			-- the asteroid playing field is connected at the ends
+			if (self.ox > 128) self.ox = 0
+			if (self.ox < 0) self.ox = 128
+			if (self.oy > 128) self.oy = 0
+			if (self.oy < 0) self.oy = 128
+
+			self.rx,self.ry=rotate(self.ox,self.oy,64,64,a) -- determine rotated pos
+			if self.blow_up > 0 then
+				self.blow_up +=1
+			end
+			if self.blow_up > 30 then
+				self:remove()
+			end
+			for b in all(bullets) do
+				-- check for collisions between all bullets and the ufo
+				-- the idea is that the same code worked for asteroids so reuse it for ufos
+				if (b.rx > self.rx-self.size and b.rx <self.rx+self.size and b.ry > self.ry-self.size and b.ry < self.ry+self.size and self.blow_up < 1) then
+					self.blow_up +=1
+					b:remove()
+					if (self.size == "big") then
+						score_hundreds += 2
+					else
+						score_thousands += 1
+					end
+					calc_score()
+				end
+			end
+
+			local hit_box_adjust = 1
+			if (self.size == 2) hit_box_adjust = 0
+
+			if (self.rx+(self.size-hit_box_adjust) > 64 and self.rx-(self.size-hit_box_adjust) < 64 and self.ry+(self.size-hit_box_adjust) > 64 and self.ry-(self.size-hit_box_adjust) < 64 and self.blow_up == 0 and lose == 0 and overlay_state == 1) then 
+				lose = 1
+				lives-=1
+				self.blow_up +=1
+					if (self.size == "big") then
+						score_hundreds += 2
+					else
+						score_thousands += 1
+					end
+				end
+				calc_score()
+			end
+
+		end,
+
+		draw=function(self)
+				if (self.blow_up > 0) then
+					-- do ufo particle animation
+					if (self.blow_up == 1) draw_one_up_explode(self.rx, self.ry, 0, 0, 6)
+					if self.blow_up > 1 then
+						for op in all(one_up_particles) do
+							op:update()
+							op:draw()
+						end
+					end
+				else
+					-- determine which asteroid to draw
+					if (self.size == "big") then
+						ufo_big(self.rx, self.ry)
+					else
+						ufo_small(self.rx, self.ry)
+					end
+				end
+		end,
+
+		remove=function(self)
+			del(ufos, self)
+			ufo_count-=1
 		end
 	})
 
@@ -1318,6 +1441,14 @@ function a4s(x,y)
 		rx, ry = rotate(x+p.x, y+p.y, x, y, a)
 		pset(rx, ry, 6)
 	end
+end
+
+function ufo_big(x,y)
+
+end
+
+function ufo_small(x,y)
+
 end
 
 __gfx__
