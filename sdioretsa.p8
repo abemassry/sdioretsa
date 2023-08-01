@@ -8,6 +8,7 @@ function _init()
 	bullets={}
 	ufos={}
 	ufo_count = 0
+	new_ufo_timer = 0
 	init_asteroid_count = 4 -- initial value
 	reset_asteroids = true
 	btn_4_press = false
@@ -335,6 +336,8 @@ function add_new_asteroid(size_new, xinit, yinit)
 end
 
 function add_ufo(size, xinit, yinit)
+	ufo_count+=1
+	new_ufo_timer=0
 	add(ufos, {
 		ox=xinit, -- original ufo position
 		oy=yinit,
@@ -346,8 +349,8 @@ function add_ufo(size, xinit, yinit)
 		ty = 0, -- rotated thrust y component
 		tdirection = -1,
 		blow_up = 0,
-		speedx = (rnd(0.75)*(8/size)-0.25),
-		speedy = (rnd(0.75)*(8/size)-0.25),
+		speedx = 1,
+		speedy = 0,
 		size_accel = 0.33,
 		a_rnd=rnd({1,2,3,4}),
 		init_angle = 0,
@@ -399,7 +402,7 @@ function add_ufo(size, xinit, yinit)
 				if (b.rx > self.rx-self.size and b.rx <self.rx+self.size and b.ry > self.ry-self.size and b.ry < self.ry+self.size and self.blow_up < 1) then
 					self.blow_up +=1
 					b:remove()
-					if (self.size == "big") then
+					if (self.size == 6) then
 						score_hundreds += 2
 					else
 						score_thousands += 1
@@ -409,18 +412,17 @@ function add_ufo(size, xinit, yinit)
 			end
 
 			local hit_box_adjust = 1
-			if (self.size == 2) hit_box_adjust = 0
+			if (self.size == 3) hit_box_adjust = 0
 
 			if (self.rx+(self.size-hit_box_adjust) > 64 and self.rx-(self.size-hit_box_adjust) < 64 and self.ry+(self.size-hit_box_adjust) > 64 and self.ry-(self.size-hit_box_adjust) < 64 and self.blow_up == 0 and lose == 0 and overlay_state == 1) then 
 				lose = 1
 				lives-=1
 				self.blow_up +=1
-					if (self.size == "big") then
+					if (self.size == 6) then
 						score_hundreds += 2
 					else
 						score_thousands += 1
 					end
-				end
 				calc_score()
 			end
 
@@ -438,7 +440,7 @@ function add_ufo(size, xinit, yinit)
 					end
 				else
 					-- determine which asteroid to draw
-					if (self.size == "big") then
+					if (self.size == 6) then
 						ufo_big(self.rx, self.ry)
 					else
 						ufo_small(self.rx, self.ry)
@@ -479,8 +481,11 @@ function _update60()
 
 	elseif overlay_state == 1 then
 
+		-- timers
 		t+=1
+		if (ufo_count == 0) new_ufo_timer+=1
 		if (t>60) t=0
+
 		if lose > 0 then
 			lose+=1
 		end
@@ -505,8 +510,9 @@ function _update60()
 			for a in all(asteroids) do
 				a:lose_reset()
 			end
-
 		end
+
+
 		if (lose > 300 and lives == -1) then
 			calc_highscore()
 			lose=0
@@ -585,6 +591,8 @@ function _update60()
 				add_new_asteroid(8, xinit, yinit)
 			end
 		end
+		
+		-- run update methods
 		for a in all(asteroids) do
 			a:update()
 		end
@@ -592,7 +600,15 @@ function _update60()
 		for b in all(bullets) do
 			b:update()
 		end
+
+		for u in all(ufos) do
+			u:update()
+		end
+
 		if (asteroid_count == 0) reset_asteroids = true
+		-- big ufo is 6
+		-- small ufo is 3
+		if (ufo_count == 0 and new_ufo_timer > 300) add_ufo(6, 30, 30)
 	elseif overlay_state == 2 then
 		-- do highscore select
 	end
@@ -621,12 +637,18 @@ function _draw()
 
 	elseif overlay_state == 1 then
 		cls()
+
+		-- run draw methods
 		for a in all(asteroids) do
 			a:draw()
 		end
 		for b in all(bullets) do
 			b:draw()
 		end
+		for u in all(ufos) do
+			u:draw()
+		end
+
 		if lose == 0 then
 			pset(64,64,6)
 			pset(63,65,6)
@@ -1444,11 +1466,11 @@ function a4s(x,y)
 end
 
 function ufo_big(x,y)
-
+  rect(x+0, y+0, x+8, y+4, 6)
 end
 
 function ufo_small(x,y)
-
+  rect(x+0, y+0, x+4, y+2, 6)
 end
 
 __gfx__
