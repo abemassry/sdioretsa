@@ -7,6 +7,7 @@ function _init()
 	asteroids={}
 	bullets={}
 	ufos={}
+	ufo_bullets={}
 	ufo_count = 0
 	new_ufo_timer = 0
 	init_asteroid_count = 4 -- initial value
@@ -14,6 +15,7 @@ function _init()
 	btn_4_press = false
 	asteroid_count = 0
 	bullet_count = 0
+	ufo_bullet_count = 0
 	btn_4_hold = 25
 
 	lives = 2
@@ -131,6 +133,57 @@ function add_bullet()
 		remove=function(self)
 			bullet_count-=1
 			del(bullets, self)
+		end
+	})
+end
+
+function add_ufo_bullet(xinit, yinit)
+	ufo_bullet_count+=1
+	add(ufo_bullets, {
+		ox = xinit,
+		oy = yinit,
+		rx = 0, -- rotated ufo_bullet position
+		ry = 0, 
+		vx = 0, -- rotated velocity x component
+		vy = 0, -- rotated velocity y component
+		speedx = 0,
+		speedy = 0,
+		btimer = 0,
+		init_angle = 0,
+		init_velocity = 1,
+
+		update=function(self)
+			self.btimer+=1
+			if self.btimer > 45 then
+				ufo_bullet_count-=1
+				del(ufo_bullets, self)
+			end
+
+			--self.oy+=xinit
+			--self.ox+=yinit
+			-- the velocity happens in the y direction but
+			-- after rotation could have an x component
+			-- it effects everything else on screen
+			self.vx = sin(a-self.init_angle) * self.init_velocity
+			self.vy = cos(a-self.init_angle) * self.init_velocity
+			self.ox+=(self.speedx) + self.vx
+			self.oy+=(self.speedy) + self.vy
+
+			-- the asteroid playing field is connected at the ends
+			if (self.ox > 128) self.ox = 0
+			if (self.ox < 0) self.ox = 128
+			if (self.oy > 128) self.oy = 0
+			if (self.oy < 0) self.oy = 128
+
+			self.rx,self.ry=rotate(self.ox,self.oy,64,64,a-self.init_angle)
+		end,
+
+		draw=function(self)
+			pset(self.rx, self.ry, 7)
+		end,
+		remove=function(self)
+			ufo_bullet_count-=1
+			del(ufo_bullets, self)
 		end
 	})
 end
@@ -355,6 +408,7 @@ function add_ufo(size, xinit, yinit)
 		a_rnd=rnd({1,2,3,4}),
 		init_angle = 0,
 		size=size,
+		life_timer=0,
 
 		lose_reset=function(self)
 			--self.vx = self.speedx
@@ -364,6 +418,7 @@ function add_ufo(size, xinit, yinit)
 		end,
 
 		update=function(self)
+			self.life_timer+=1
 			-- the thrust happens in the y direction but
 			-- after rotation could have an x component
 			-- it effects everything else on screen
@@ -425,6 +480,18 @@ function add_ufo(size, xinit, yinit)
 					end
 				calc_score()
 			end
+
+			if self.life_timer > 60 and self.life_timer <= 180 then
+				self.speedy = -1
+			elseif self.life_timer > 180 and self.life_timer <= 240 then
+				self.speedy = 0
+			elseif self.life_timer > 240 then
+				self.speedy = 1
+			end
+
+			if (self.life_timer % 10 == 0) add_ufo_bullet(self.ox, self.oy)
+
+			if (self.life_timer > 300) self:remove()
 
 		end,
 
@@ -605,6 +672,10 @@ function _update60()
 			u:update()
 		end
 
+		for ub in all(ufo_bullets) do
+			ub:update()
+		end
+
 		if (asteroid_count == 0) reset_asteroids = true
 		-- big ufo is 6
 		-- small ufo is 3
@@ -647,6 +718,10 @@ function _draw()
 		end
 		for u in all(ufos) do
 			u:draw()
+		end
+
+		for ub in all(ufo_bullets) do
+			ub:draw()
 		end
 
 		if lose == 0 then
