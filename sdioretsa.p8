@@ -101,6 +101,8 @@ function add_bullet()
 		btimer = 0,
 		init_angle = a,
 		init_velocity = velocity,
+		dir_x = flr(rnd(20)) - 10,
+		dir_y = flr(rnd(20)) - 10,
 
 		update=function(self)
 			self.btimer+=1
@@ -115,8 +117,8 @@ function add_bullet()
 			-- it effects everything else on screen
 			self.vx = sin(a-self.init_angle) * velocity
 			self.vy = cos(a-self.init_angle) * velocity
-			self.ox+=(self.speedx) + self.vx
-			self.oy+=(self.speedy) + self.vy
+			self.ox+=((self.speedx) + self.vx) * self.dir_x
+			self.oy+=((self.speedy) + self.vy) * self.dir_y
 
 			-- the asteroid playing field is connected at the ends
 			if (self.ox > 128) self.ox = 0
@@ -142,15 +144,15 @@ function add_ufo_bullet(xinit, yinit)
 	add(ufo_bullets, {
 		ox = xinit,
 		oy = yinit,
-		rx = 0, -- rotated ufo_bullet position
-		ry = 0, 
+		rx = xinit, -- rotated ufo_bullet position
+		ry = yinit, 
 		vx = 0, -- rotated velocity x component
 		vy = 0, -- rotated velocity y component
 		speedx = 0,
 		speedy = 0,
 		btimer = 0,
-		init_angle = 0,
-		init_velocity = 1,
+		init_angle = a,
+		init_velocity = velocity,
 
 		update=function(self)
 			self.btimer+=1
