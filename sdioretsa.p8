@@ -87,13 +87,13 @@ function rotate(x,y,cx,cy,angle)
 	return rotx,roty
 end
 
-function add_bullet()
+function add_bullet(xinit, yinit, ufo_bullet)
 	bullet_count+=1
 	add(bullets, {
-		ox = 64,
-		oy = 64,
-		rx = 64, -- rotated bullet position
-		ry = 64, 
+		ox = xinit,
+		oy = yinit,
+		rx = xinit, -- rotated bullet position
+		ry = yinit, 
 		vx = 0, -- rotated velocity x component
 		vy = 0, -- rotated velocity y component
 		speedx = 0,
@@ -101,8 +101,7 @@ function add_bullet()
 		btimer = 0,
 		init_angle = a,
 		init_velocity = velocity,
-		dir_x = flr(rnd(20)) - 10,
-		dir_y = flr(rnd(20)) - 10,
+		direction = flr(rnd(2))
 
 		update=function(self)
 			self.btimer+=1
@@ -110,15 +109,18 @@ function add_bullet()
 				bullet_count-=1
 				del(bullets, self)
 			end
-
+			
+			if ufo_bullet then
+				self.oy-=2 + (self.init_velocity)
+				
 			self.oy-=2 + (self.init_velocity)
 			-- the velocity happens in the y direction but
 			-- after rotation could have an x component
 			-- it effects everything else on screen
 			self.vx = sin(a-self.init_angle) * velocity
 			self.vy = cos(a-self.init_angle) * velocity
-			self.ox+=((self.speedx) + self.vx) * self.dir_x
-			self.oy+=((self.speedy) + self.vy) * self.dir_y
+			self.ox+=((self.speedx) + self.vx)
+			self.oy+=((self.speedy) + self.vy)
 
 			-- the asteroid playing field is connected at the ends
 			if (self.ox > 128) self.ox = 0
@@ -155,6 +157,7 @@ function add_ufo_bullet(xinit, yinit)
 		init_velocity = velocity,
 
 		update=function(self)
+
 			self.btimer+=1
 			if self.btimer > 45 then
 				ufo_bullet_count-=1
@@ -491,7 +494,7 @@ function add_ufo(size, xinit, yinit)
 				self.speedy = 1
 			end
 
-			if (self.life_timer % 10 == 0) add_ufo_bullet(self.ox, self.oy)
+			if (self.life_timer % 10 == 0) add_bullet(self.rx, self.ry)
 
 			if (self.life_timer > 300) self:remove()
 
@@ -636,7 +639,7 @@ function _update60()
 		-- if (btn(4) and bullet_count < 4 and btn_4_hold > 30) then
 		if (btn_4_press == false and btn(4) and bullet_count < 4 and btn_4_hold > 5 and lose == 0) then
 			btn_4_hold = 0
-			add_bullet()
+			add_bullet(64,64)
 		end
 		btn_4_hold+=1
 		if (btn(4)) then
@@ -657,7 +660,7 @@ function _update60()
 					xinit = flr(rnd(128))
 					yinit = flr(rnd(128))
 				end
-				add_new_asteroid(8, xinit, yinit)
+				--add_new_asteroid(8, xinit, yinit) -- DEBUG
 			end
 		end
 		
