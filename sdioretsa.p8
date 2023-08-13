@@ -101,7 +101,9 @@ function add_bullet(xinit, yinit, ufo_bullet)
 		btimer = 0,
 		init_angle = a,
 		init_velocity = velocity,
-		direction = flr(rnd(2))
+		--direction = flr(rnd(2)),
+		direction = rnd(1),
+		ufo_bullet=ufo_bullet,
 
 		update=function(self)
 			self.btimer+=1
@@ -111,9 +113,11 @@ function add_bullet(xinit, yinit, ufo_bullet)
 			end
 			
 			if ufo_bullet then
+				self.oy-=(cos(self.direction)*2)
+				self.ox-=(sin(self.direction)*2)
+			else
 				self.oy-=2 + (self.init_velocity)
-				
-			self.oy-=2 + (self.init_velocity)
+			end
 			-- the velocity happens in the y direction but
 			-- after rotation could have an x component
 			-- it effects everything else on screen
@@ -137,58 +141,6 @@ function add_bullet(xinit, yinit, ufo_bullet)
 		remove=function(self)
 			bullet_count-=1
 			del(bullets, self)
-		end
-	})
-end
-
-function add_ufo_bullet(xinit, yinit)
-	ufo_bullet_count+=1
-	add(ufo_bullets, {
-		ox = xinit,
-		oy = yinit,
-		rx = xinit, -- rotated ufo_bullet position
-		ry = yinit, 
-		vx = 0, -- rotated velocity x component
-		vy = 0, -- rotated velocity y component
-		speedx = 0,
-		speedy = 0,
-		btimer = 0,
-		init_angle = a,
-		init_velocity = velocity,
-
-		update=function(self)
-
-			self.btimer+=1
-			if self.btimer > 45 then
-				ufo_bullet_count-=1
-				del(ufo_bullets, self)
-			end
-
-			--self.oy+=xinit
-			--self.ox+=yinit
-			-- the velocity happens in the y direction but
-			-- after rotation could have an x component
-			-- it effects everything else on screen
-			self.vx = sin(a-self.init_angle) * self.init_velocity
-			self.vy = cos(a-self.init_angle) * self.init_velocity
-			self.ox+=(self.speedx) + self.vx
-			self.oy+=(self.speedy) + self.vy
-
-			-- the asteroid playing field is connected at the ends
-			if (self.ox > 128) self.ox = 0
-			if (self.ox < 0) self.ox = 128
-			if (self.oy > 128) self.oy = 0
-			if (self.oy < 0) self.oy = 128
-
-			self.rx,self.ry=rotate(self.ox,self.oy,64,64,a-self.init_angle)
-		end,
-
-		draw=function(self)
-			pset(self.rx, self.ry, 7)
-		end,
-		remove=function(self)
-			ufo_bullet_count-=1
-			del(ufo_bullets, self)
 		end
 	})
 end
@@ -396,6 +348,8 @@ end
 function add_ufo(size, xinit, yinit)
 	ufo_count+=1
 	new_ufo_timer=0
+	local speedx_dir = 1
+	if (xinit == 128) speedx_dir = -1
 	add(ufos, {
 		ox=xinit, -- original ufo position
 		oy=yinit,
@@ -407,7 +361,7 @@ function add_ufo(size, xinit, yinit)
 		ty = 0, -- rotated thrust y component
 		tdirection = -1,
 		blow_up = 0,
-		speedx = 1,
+		speedx = speedx_dir,
 		speedy = 0,
 		size_accel = 0.33,
 		a_rnd=rnd({1,2,3,4}),
@@ -459,7 +413,7 @@ function add_ufo(size, xinit, yinit)
 			for b in all(bullets) do
 				-- check for collisions between all bullets and the ufo
 				-- the idea is that the same code worked for asteroids so reuse it for ufos
-				if (b.rx > self.rx-self.size and b.rx <self.rx+self.size and b.ry > self.ry-self.size and b.ry < self.ry+self.size and self.blow_up < 1) then
+				if (b.rx > self.rx-self.size and b.rx <self.rx+self.size and b.ry > self.ry-self.size and b.ry < self.ry+self.size and self.blow_up < 1 and b.ufo_bullet == false) then
 					self.blow_up +=1
 					b:remove()
 					if (self.size == 6) then
@@ -494,7 +448,7 @@ function add_ufo(size, xinit, yinit)
 				self.speedy = 1
 			end
 
-			if (self.life_timer % 10 == 0) add_bullet(self.rx, self.ry)
+			if (self.life_timer % 35 == 0) add_bullet(self.rx, self.ry, true)
 
 			if (self.life_timer > 300) self:remove()
 
@@ -660,7 +614,7 @@ function _update60()
 					xinit = flr(rnd(128))
 					yinit = flr(rnd(128))
 				end
-				--add_new_asteroid(8, xinit, yinit) -- DEBUG
+				add_new_asteroid(8, xinit, yinit)
 			end
 		end
 		
@@ -684,7 +638,7 @@ function _update60()
 		if (asteroid_count == 0) reset_asteroids = true
 		-- big ufo is 6
 		-- small ufo is 3
-		if (ufo_count == 0 and new_ufo_timer > 300) add_ufo(6, 30, 30)
+		if (ufo_count == 0 and new_ufo_timer > 300) add_ufo(6, rnd({0,128}), rnd({30,110}))
 	elseif overlay_state == 2 then
 		-- do highscore select
 	end
