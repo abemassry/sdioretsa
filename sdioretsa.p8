@@ -106,7 +106,11 @@ function add_bullet(xinit, yinit, ufo_bullet)
 		ufo_bullet=ufo_bullet,
 
 		update=function(self)
-			self.btimer+=1
+			if self.ufo_bullet then
+				self.btimer+=.5
+			else
+				self.btimer+=1
+			end
 			if self.btimer > 45 then
 				bullet_count-=1
 				del(bullets, self)
@@ -133,6 +137,10 @@ function add_bullet(xinit, yinit, ufo_bullet)
 			if (self.oy < 0) self.oy = 128
 
 			self.rx,self.ry=rotate(self.ox,self.oy,64,64,a-self.init_angle)
+			if (self.rx >= 63 and self.rx <= 66 and self.ry >= 63 and self.ry <= 66) then
+				lose = 1
+				lives-=1
+			end
 		end,
 
 		draw=function(self)
@@ -243,6 +251,7 @@ function add_new_asteroid(size_new, xinit, yinit)
 			if self.blow_up > 30 then
 				self:remove()
 			end
+
 			for b in all(bullets) do
 				-- check for collisions between all bullets and this asteroid
 				-- the idea is there are less bullets than asteroids so it's
@@ -253,13 +262,13 @@ function add_new_asteroid(size_new, xinit, yinit)
 					if (self.size == 8) then
 						add_new_asteroid(4, self.ox, self.oy)
 						add_new_asteroid(4, self.ox, self.oy)
-						score_tens += 2
+						if (not b.ufo_bullet) score_tens += 2
 					elseif (self.size == 4) then
 						add_new_asteroid(2, self.ox, self.oy)
 						add_new_asteroid(2, self.ox, self.oy)
-						score_tens += 5
+						if (not b.ufo_bullet) score_tens += 5
 					else
-						score_hundreds += 1
+						if (not b.ufo_bullet) score_hundreds += 1
 					end
 					calc_score()
 				end
@@ -286,6 +295,16 @@ function add_new_asteroid(size_new, xinit, yinit)
 				end
 				calc_score()
 			end
+
+			-- check for collision with ufo
+			for u in all(ufos) do
+				if (self.rx+(self.size-hit_box_adjust) > u.rx and self.rx-(self.size-hit_box_adjust) < u.rx and self.ry+(self.size-hit_box_adjust) > u.ry and self.ry-(self.size-hit_box_adjust) < u.ry and self.blow_up == 0) then
+					self.blow_up +=1
+					u.blow_up +=1
+				end
+
+			end
+
 
 		end,
 
@@ -539,7 +558,7 @@ function _update60()
 		end
 
 
-		if (lose > 300 and lives == -1) then
+		if (lose > 300 and lives <= -1) then
 			calc_highscore()
 			lose=0
 			a = 0 -- the ship's angle
@@ -561,6 +580,10 @@ function _update60()
 			for a in all(asteroids) do
 				a:remove()
 			end
+			for u in all(ufos) do
+				u:remove()
+			end
+			ufo_count=0
 			reset_asteroids = true
 		end
 
@@ -593,7 +616,7 @@ function _update60()
 		-- if (btn(4) and bullet_count < 4 and btn_4_hold > 30) then
 		if (btn_4_press == false and btn(4) and bullet_count < 4 and btn_4_hold > 5 and lose == 0) then
 			btn_4_hold = 0
-			add_bullet(64,64)
+			add_bullet(64,64, false)
 		end
 		btn_4_hold+=1
 		if (btn(4)) then
@@ -614,7 +637,7 @@ function _update60()
 					xinit = flr(rnd(128))
 					yinit = flr(rnd(128))
 				end
-				add_new_asteroid(8, xinit, yinit)
+				add_new_asteroid(8, xinit, yinit) -- DEBUG UFO
 			end
 		end
 		
