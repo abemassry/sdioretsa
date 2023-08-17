@@ -88,7 +88,11 @@ function rotate(x,y,cx,cy,angle)
 end
 
 function add_bullet(xinit, yinit, ufo_bullet)
-	bullet_count+=1
+	if ufo_bullet then
+		ufo_bullet_count +=1
+	else
+		bullet_count+=1
+	end
 	add(bullets, {
 		ox = xinit,
 		oy = yinit,
@@ -111,10 +115,7 @@ function add_bullet(xinit, yinit, ufo_bullet)
 			else
 				self.btimer+=1
 			end
-			if self.btimer > 45 then
-				bullet_count-=1
-				del(bullets, self)
-			end
+			if (self.btimer > 45) self:remove()
 			
 			if ufo_bullet then
 				self.oy-=(cos(self.direction)*2)
@@ -140,6 +141,7 @@ function add_bullet(xinit, yinit, ufo_bullet)
 			if (self.rx >= 63 and self.rx <= 66 and self.ry >= 63 and self.ry <= 66) then
 				lose = 1
 				lives-=1
+				self:remove()
 			end
 		end,
 
@@ -147,7 +149,11 @@ function add_bullet(xinit, yinit, ufo_bullet)
 			pset(self.rx, self.ry, 7)
 		end,
 		remove=function(self)
-			bullet_count-=1
+			if self.ufo_bullet then
+				ufo_bullet_count-=1
+			else
+				bullet_count-=1
+			end
 			del(bullets, self)
 		end
 	})
@@ -584,6 +590,9 @@ function _update60()
 				u:remove()
 			end
 			ufo_count=0
+			for b in all(bullets) do
+				b:remove()
+			end
 			reset_asteroids = true
 		end
 
