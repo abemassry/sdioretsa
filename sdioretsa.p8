@@ -210,8 +210,8 @@ function add_new_asteroid(size_new, xinit, yinit)
 		ty = 0, -- rotated thrust y component
 		tdirection = -1,
 		blow_up = 0,
-		speedx = (rnd(0.75)*(8/size_new)-0.25),
-		speedy = (rnd(0.75)*(8/size_new)-0.25),
+		speedx = (rnd(0.75)*(8/size_new)-0.25) * rnd({-1, 1}),
+		speedy = (rnd(0.75)*(8/size_new)-0.25) * rnd({-1, 1}),
 		size_accel = 0.33,
 		a_rnd=rnd({1,2,3,4}),
 		init_angle = 0,
@@ -590,6 +590,7 @@ function _update60()
 				u:remove()
 			end
 			ufo_count=0
+			new_ufo_timer=0
 			for b in all(bullets) do
 				b:remove()
 			end
@@ -671,6 +672,7 @@ function _update60()
 		-- big ufo is 6
 		-- small ufo is 3
 		if (ufo_count == 0 and new_ufo_timer > 300) add_ufo(6, rnd({0,128}), rnd({30,110}))
+		-- if the above and score_hundreds > 5 then 50/50 chance of a small ufo
 	elseif overlay_state == 2 then
 		-- do highscore select
 	end
