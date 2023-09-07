@@ -121,8 +121,8 @@ function add_bullet(xinit, yinit, ufo_bullet, ufo_size)
 				if ufo_size == 3 then
 					-- TODO: determine aim at center to ship
 					-- 		for small ufo
-					self.oy-=(cos(self.direction)*2)
-					self.ox-=(sin(self.direction)*2)
+					self.oy-=(cos(new_direction)*2)
+					self.ox-=(sin(new_direction)*2)
 				else
 					self.oy-=(cos(self.direction)*2)
 					self.ox-=(sin(self.direction)*2)
@@ -655,7 +655,7 @@ function _update60()
 					xinit = flr(rnd(128))
 					yinit = flr(rnd(128))
 				end
-				--add_new_asteroid(8, xinit, yinit) -- DEBUG UFO
+				add_new_asteroid(8, xinit, yinit) -- DEBUG UFO
 				score_hundreds = 6
 			end
 		end
