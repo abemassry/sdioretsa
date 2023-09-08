@@ -93,6 +93,23 @@ function add_bullet(xinit, yinit, ufo_bullet, ufo_size)
 	else
 		bullet_count+=1
 	end
+	local new_direction = rnd(1)
+	if ufo_size == 3 then
+		local xval = 1
+		local yval = 1
+		local up_down = rnd({-0.1,0.1})
+		if (xinit >= 64) then 
+			xval = xinit + 64
+		else
+			xval = xinit - 64
+		end
+		if (yinit >= 64) then 
+			yval = yinit + 64
+		else
+			yval = yinit - 64
+		end
+		new_direction = atan2(xval, yval) + up_down
+	end
 	add(bullets, {
 		ox = xinit,
 		oy = yinit,
@@ -106,7 +123,7 @@ function add_bullet(xinit, yinit, ufo_bullet, ufo_size)
 		init_angle = a,
 		init_velocity = velocity,
 		--direction = flr(rnd(2)),
-		direction = rnd(1),
+		direction = new_direction,
 		ufo_bullet=ufo_bullet,
 
 		update=function(self)
@@ -118,16 +135,8 @@ function add_bullet(xinit, yinit, ufo_bullet, ufo_size)
 			if (self.btimer > 45) self:remove()
 			
 			if ufo_bullet then
-				if ufo_size == 3 then
-					-- TODO: determine aim at center to ship
-					-- 		for small ufo
-					self.oy-=(cos(new_direction)*2)
-					self.ox-=(sin(new_direction)*2)
-				else
-					self.oy-=(cos(self.direction)*2)
-					self.ox-=(sin(self.direction)*2)
-				end
-
+				self.oy-=(cos(self.direction)*2)
+				self.ox-=(sin(self.direction)*2)
 			else
 				self.oy-=2 + (self.init_velocity)
 			end
@@ -632,7 +641,7 @@ function _update60()
 		if (velocity > 3) velocity = 3
 
 		-- if (btn(4) and bullet_count < 4 and btn_4_hold > 30) then
-		if (btn_4_press == false and btn(4) and bullet_count < 4 and btn_4_hold > 5 and lose == 0) then
+		if (btn_4_press == false and btn(4) and bullet_count < 4 and btn_4_hold > 4 and lose == 0) then
 			btn_4_hold = 0
 			add_bullet(64,64, false)
 		end
@@ -655,7 +664,7 @@ function _update60()
 					xinit = flr(rnd(128))
 					yinit = flr(rnd(128))
 				end
-				add_new_asteroid(8, xinit, yinit) -- DEBUG UFO
+				-- add_new_asteroid(8, xinit, yinit) -- DEBUG UFO
 				score_hundreds = 6
 			end
 		end
@@ -685,6 +694,7 @@ function _update60()
 		if (ufo_count == 0 and new_ufo_timer > 300) display_ufo=true 
 		-- if score_hundreds > 5 then 50/50 chance of a small ufo
 		if (score_hundreds > 5) ufo_size = rnd({6,3})
+		ufo_size = 3 -- DEBUG
 		if (display_ufo) add_ufo(ufo_size, rnd({0,128}), rnd({30,110}))
 	elseif overlay_state == 2 then
 		-- do highscore select
