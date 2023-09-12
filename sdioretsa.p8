@@ -7,7 +7,6 @@ function _init()
 	asteroids={}
 	bullets={}
 	ufos={}
-	ufo_bullets={}
 	ufo_count = 0
 	new_ufo_timer = 0
 	init_asteroid_count = 4 -- initial value
@@ -97,11 +96,13 @@ function add_bullet(xinit, yinit, ufo_bullet, ufo_size)
 	if ufo_size == 3 then
 		local xval = 1
 		local yval = 1
-		local up_down = rnd({-0.1,0.1})
+		local up_down = 0
 		if (xinit >= 64) then 
 			xval = xinit + 64
+			up_down = -0.01
 		else
 			xval = xinit - 64
+			up_down = 0.01
 		end
 		if (yinit >= 64) then 
 			yval = yinit + 64
@@ -158,7 +159,13 @@ function add_bullet(xinit, yinit, ufo_bullet, ufo_size)
 			if (self.rx >= 63 and self.rx <= 66 and self.ry >= 63 and self.ry <= 66) then
 				lose = 1
 				lives-=1
-				self:remove()
+				for u in all(ufos) do
+					u:remove()
+				end
+				for b in all(bullets) do
+					b:remove()
+				end
+				-- self:remove()
 			end
 		end,
 
@@ -555,9 +562,21 @@ function _update60()
 		if (t>60) t=0
 
 		if lose > 0 then
+			for u in all(ufos) do
+				u:remove()
+			end
+			for b in all(bullets) do
+				b:remove()
+			end
 			lose+=1
 		end
-		if (lose>90 and lives > -1) then 
+		if (lose>90 and lives > -1) then
+			for u in all(ufos) do
+				u:remove()
+			end
+			for b in all(bullets) do
+				b:remove()
+			end
 			lose=0
 			a = 0 -- the ship's angle
 			t_a = 0 -- the ship's angle thrust activate
@@ -577,6 +596,12 @@ function _update60()
 
 			for a in all(asteroids) do
 				a:lose_reset()
+			end
+			for a in all(asteroids) do
+				-- determine if crash is imminent 
+				if a.ox >= 54 and a.ox <= 74 and a.oy >= 54 and a.oy <= 74 then
+					lose = 89
+				end
 			end
 		end
 
@@ -664,8 +689,7 @@ function _update60()
 					xinit = flr(rnd(128))
 					yinit = flr(rnd(128))
 				end
-				-- add_new_asteroid(8, xinit, yinit) -- DEBUG UFO
-				score_hundreds = 6
+				add_new_asteroid(8, xinit, yinit) -- DEBUG UFO
 			end
 		end
 		
@@ -682,9 +706,6 @@ function _update60()
 			u:update()
 		end
 
-		for ub in all(ufo_bullets) do
-			ub:update()
-		end
 
 		if (asteroid_count == 0) reset_asteroids = true
 		-- big ufo is 6
@@ -694,7 +715,7 @@ function _update60()
 		if (ufo_count == 0 and new_ufo_timer > 300) display_ufo=true 
 		-- if score_hundreds > 5 then 50/50 chance of a small ufo
 		if (score_hundreds > 5) ufo_size = rnd({6,3})
-		ufo_size = 3 -- DEBUG
+		--ufo_size = 3 -- DEBUG
 		if (display_ufo) add_ufo(ufo_size, rnd({0,128}), rnd({30,110}))
 	elseif overlay_state == 2 then
 		-- do highscore select
@@ -736,22 +757,25 @@ function _draw()
 			u:draw()
 		end
 
-		for ub in all(ufo_bullets) do
-			ub:draw()
-		end
-
 		if lose == 0 then
 			pset(64,64,6)
 			pset(63,65,6)
 			pset(63,66,6)
 			pset(65,65,6)
 			pset(65,66,6)
-		elseif lose > 0 then
+		-- elseif lose > 0 and (lose != 89 or lose != 90 or lose != 91) then
+		elseif lose > 0 and lose < 89 then
 			pset(64+(lose/4),64+(lose/4),7)
 			pset(63-(lose/4),65,7)
 			pset(63-(lose/4),66,7)
 			pset(65+(lose/4),65,7)
 			pset(66+(lose/4),66,7)
+		elseif lose == 89 or lose == 90 or lose == 91 then
+			pset(64+(lose/4),64+(lose/4),0)
+			pset(63-(lose/4),65,0)
+			pset(63-(lose/4),66,0)
+			pset(65+(lose/4),65,0)
+			pset(66+(lose/4),66,0)
 		end
 
 
